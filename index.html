@@ -3,78 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gemini V7.0 [DICTATOR]</title>
+    <title>Gemini V7.0 [PRO UI]</title>
     <style>
+        /* --- iOS 极简新拟态配色与核心样式 --- */
         :root {
-            --bg: #f0f2f5;
-            --text-dark: #1c1c1e;
-            --text-gray: #8e8e93;
-            --blue: #007aff;
-            --green: #34c759;
-            --red: #ff3b30;
-            --yellow: #ffcc00;
-            --shadow: 8px 8px 20px #d1d9e6, -8px -8px 20px #ffffff;
-            --inner: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff;
-            --radius: 20px;
+            --bg-color: #e0e5ec; /* 经典新拟态灰白底 */
+            --text-main: #4a5568;
+            --text-sub: #a0aec0;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            
+            /* 功能色保留，但调柔和一点适应新拟态 */
+            --blue: #3182ce;
+            --green: #48bb78;
+            --red: #e53e3e;
+            --yellow: #d69e2e;
+            --purple: #805ad5; 
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text-dark);
-            font-family: -apple-system, "SF Pro Text", sans-serif;
-            margin: 0; padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            margin: 0; padding: 20px 20px 40px 20px;
             display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
+        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 30px; }
+
+        /* --- Neumorphism Components --- */
+
+        /* 凸起卡片 */
+        .neu-card {
+            background: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 
+                9px 9px 16px var(--shadow-dark), 
+                -9px -9px 16px var(--shadow-light);
+            padding: 25px;
+            position: relative;
+        }
+
+        /* 凹陷区域 (用于进度条槽、显示区) */
+        .neu-inset {
+            background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: 
+                inset 5px 5px 10px var(--shadow-dark), 
+                inset -5px -5px 10px var(--shadow-light);
+        }
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; }
-        .brand { font-weight: 900; font-size: 1.2rem; letter-spacing: -1px; color: var(--text-dark); }
-        .status { 
-            padding: 6px 14px; border-radius: 50px; background: #e0e5ec;
-            box-shadow: var(--shadow); font-size: 0.7rem; font-weight: 700; color: var(--blue);
-            display: flex; align-items: center; gap: 6px;
+        .brand { font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; color: var(--text-main); opacity: 0.8; }
+        .status-badge { 
+            padding: 8px 16px; border-radius: 20px; 
+            background: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            font-size: 0.75rem; font-weight: 600; color: var(--blue);
+            display: flex; align-items: center; gap: 8px;
         }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 1s infinite; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 1.5s infinite; }
 
-        /* Neumorphic Card */
-        .card {
-            border-radius: var(--radius); background: var(--bg);
-            box-shadow: var(--shadow); padding: 24px; position: relative;
+        .label { 
+            font-size: 0.7rem; font-weight: 700; color: var(--text-sub); 
+            letter-spacing: 1.5px; margin-bottom: 20px; text-transform: uppercase; 
+            display: block; text-align: center;
         }
 
-        .label { font-size: 0.7rem; font-weight: 800; color: var(--text-gray); letter-spacing: 1px; margin-bottom: 16px; text-transform: uppercase; }
-
-        /* Tactical Rows */
-        .tac-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .tac-left { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text-dark); font-size: 0.9rem; }
-        .icon { width: 10px; height: 10px; border-radius: 2px; }
-        .tac-val { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.5px; }
-
-        /* Weights */
-        .bars { display: flex; flex-direction: column; gap: 14px; }
-        .bar-wrap { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 700; }
-        .track { flex: 1; height: 12px; background: #e0e5ec; border-radius: 6px; margin: 0 12px; box-shadow: var(--inner); overflow: hidden; }
-        .fill { height: 100%; border-radius: 6px; transition: width 0.4s; }
-
-        /* History */
-        .hist-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.85rem; 
-        }
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-        
-        .hit { color: var(--green); background: rgba(52,199,89,0.1); }
-        .def { color: #d4a017; background: rgba(255,204,0,0.1); }
-        .miss { color: var(--red); background: rgba(255,59,48,0.1); }
-
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        /* Tactical Core Styles */
+        .tac-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .tac-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .tac-label { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
+        .tac-val { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); }
         
         .c-main { color: var(--blue); }
-        .c-def { color: #d4a017; }
-        .c-kill { color: var(--text-gray); text-decoration: line-through; opacity: 0.6; }
+        .c-def { color: var(--yellow); }
+        .c-kill { color: var(--text-sub); text-decoration: line-through; opacity: 0.6; }
+
+        /* Energy Bars */
+        .bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 15px; }
+        .bar-track { flex: 1; height: 10px; margin: 0 15px; border-radius: 5px; overflow: hidden; } /* 使用 neu-inset 类 */
+        .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+
+        /* Combo Grid */
+        .combo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); }
+        .combo-val { font-size: 1rem; font-weight: 800; margin-top: 5px; color: var(--text-main); }
+
+        /* Review List */
+        .hist-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 10px; margin-bottom: 8px; border-radius: 10px; font-size: 0.85rem; 
+        }
+        /* 这种微浮起效果给列表用 */
+        .hist-neu {
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+        }
+        .tag { padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; }
+        
+        .hit { color: var(--green); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
+        .def { color: var(--yellow); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
+        .miss { color: var(--red); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
+
+        /* --- NEW: Stats Panel --- */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .stat-box { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            padding: 15px; border-radius: 15px;
+            /* 内部小卡片浮起 */
+            background: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        }
+        .stat-title { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 5px; font-weight: 600; }
+        .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+        
+        .s-high { color: var(--purple); }
+        .s-norm { color: var(--blue); }
+
+        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.4; transform: scale(0.95); } }
     </style>
 </head>
 <body>
@@ -83,62 +131,111 @@
     
     <div class="header">
         <div class="brand">GEMINI V7.0</div>
-        <div class="status"><div class="dot"></div> <span id="timer">Loading...</span></div>
+        <div class="status-badge"><div class="dot"></div> <span id="timer">LOADING...</span></div>
     </div>
 
-    <div class="card">
-        <div class="label">TACTICAL CORE</div>
+    <div class="neu-card">
+        <span class="label">TACTICAL CORE</span>
         
         <div class="tac-row">
-            <div class="tac-left"><div class="icon" style="background:var(--blue)"></div>主攻 (Main)</div>
+            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></span>主攻 (Main)</div>
             <div id="tMain" class="tac-val c-main">--</div>
         </div>
 
         <div class="tac-row">
-            <div class="tac-left"><div class="icon" style="background:var(--yellow)"></div>防守 (Def)</div>
+            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--yellow)"></span>防守 (Def)</div>
             <div id="tDef" class="tac-val c-def">--</div>
         </div>
 
-        <div class="tac-row" style="margin-bottom:0">
-            <div class="tac-left"><div class="icon" style="background:#ccc"></div>杀组 (Kill)</div>
+        <div class="tac-row">
+            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-sub)"></span>杀组 (Kill)</div>
             <div id="tKill" class="tac-val c-kill">--</div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="label">ENERGY (10.0 SCALE)</div>
-        <div class="bars">
-            <div class="bar-wrap"><span>大</span><div class="track"><div id="bBig" class="fill" style="background:var(--red); width:0%"></div></div><span id="vBig">0.0</span></div>
-            <div class="bar-wrap"><span>小</span><div class="track"><div id="bSml" class="fill" style="background:var(--green); width:0%"></div></div><span id="vSml">0.0</span></div>
-            <div class="bar-wrap"><span>单</span><div class="track"><div id="bOdd" class="fill" style="background:var(--blue); width:0%"></div></div><span id="vOdd">0.0</span></div>
-            <div class="bar-wrap"><span>双</span><div class="track"><div id="bEvn" class="fill" style="background:var(--yellow); width:0%"></div></div><span id="vEvn">0.0</span></div>
-        </div>
+    <div class="neu-card">
+        <span class="label">ENERGY & PREDICTION</span>
         
-        <div style="margin-top:25px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05);">
-            <div class="label" style="margin-bottom:10px">COMBOS</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:5px; text-align:center;">
-                <div id="cN1" style="font-size:0.7rem; font-weight:bold; color:var(--blue)">-</div>
-                <div id="cN2" style="font-size:0.7rem; font-weight:bold; color:var(--blue)">-</div>
-                <div id="cN3" style="font-size:0.7rem; font-weight:bold; color:#d4a017">-</div>
-                <div id="cN4" style="font-size:0.7rem; font-weight:bold; color:#aaa; text-decoration:line-through">-</div>
-                
-                <div id="cV1" style="font-size:0.9rem; font-weight:800;">0.0</div>
-                <div id="cV2" style="font-size:0.9rem; font-weight:800;">0.0</div>
-                <div id="cV3" style="font-size:0.9rem; font-weight:800;">0.0</div>
-                <div id="cV4" style="font-size:0.9rem; font-weight:800; color:#aaa;">0.0</div>
+        <div class="bar-row">
+            <span>大</span>
+            <div class="bar-track neu-inset"><div id="bBig" class="bar-fill" style="background:var(--red); width:0%"></div></div>
+            <span id="vBig">0.0</span>
+        </div>
+        <div class="bar-row">
+            <span>小</span>
+            <div class="bar-track neu-inset"><div id="bSml" class="bar-fill" style="background:var(--green); width:0%"></div></div>
+            <span id="vSml">0.0</span>
+        </div>
+        <div class="bar-row">
+            <span>单</span>
+            <div class="bar-track neu-inset"><div id="bOdd" class="bar-fill" style="background:var(--blue); width:0%"></div></div>
+            <span id="vOdd">0.0</span>
+        </div>
+        <div class="bar-row">
+            <span>双</span>
+            <div class="bar-track neu-inset"><div id="bEvn" class="bar-fill" style="background:var(--yellow); width:0%"></div></div>
+            <span id="vEvn">0.0</span>
+        </div>
+
+        <div class="combo-grid">
+            <div>
+                <div id="cN1" style="font-size:0.7rem; color:var(--blue)">-</div>
+                <div id="cV1" class="combo-val">-</div>
+            </div>
+            <div>
+                <div id="cN2" style="font-size:0.7rem; color:var(--blue)">-</div>
+                <div id="cV2" class="combo-val">-</div>
+            </div>
+            <div>
+                <div id="cN3" style="font-size:0.7rem; color:var(--yellow)">-</div>
+                <div id="cV3" class="combo-val">-</div>
+            </div>
+            <div>
+                <div id="cN4" style="font-size:0.7rem; color:var(--text-sub)">-</div>
+                <div id="cV4" class="combo-val" style="color:var(--text-sub)">-</div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="label">REVIEW (LAST 10)</div>
-        <div id="histList"></div>
+    <div class="neu-card">
+        <span class="label">REVIEW (LAST 10)</span>
+        <div id="histList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+
+    <div class="neu-card">
+        <span class="label">ACCURACY ANALYTICS</span>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-title">大小准确率</span>
+                <span class="stat-num s-norm" id="acc-bs">--%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">单双准确率</span>
+                <span class="stat-num s-norm" id="acc-oe">--%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">主攻准确率</span>
+                <span class="stat-num s-high" id="acc-main">--%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">防守准确率</span>
+                <span class="stat-num s-norm" id="acc-def">--%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">综合准确率</span>
+                <span class="stat-num s-high" id="acc-total">--%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">杀组准确率</span>
+                <span class="stat-num s-high" id="acc-kill">--%</span>
+            </div>
+        </div>
     </div>
 
 </div>
 
 <script>
-    // --- 1. V5.0 指令集常量 (不可动) ---
+    // --- 1. 原版 V5.0 指令集常量 (完全保留) ---
     const C = {
         SQRT_OSC: 28.5, SQRT_ADD: 7.5515, FISS_GOLD: 1.6180, SCAL_GOLD: 3.81966,
         TRI_DIV: 42.75, REV_GOLD: 0.61803, WARN_DIV: 6.6666, EXT_DIV: 2.2222
@@ -153,7 +250,7 @@
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
         
-        // --- 2. 核心运算逻辑 (DICTATOR MODE) ---
+        // --- 2. 核心运算逻辑 (完全保留，未删减) ---
         run: (n1, n2, n3, sum, prevItem, history) => {
             // 初始底分 (防止0)
             let w = { b:1, s:1, o:1, e:1 }; 
@@ -164,12 +261,10 @@
             let isDictator = false;
 
             // --- P0: Algo 19 (手术刀) ---
-            // 规则: D 012小, 789大, 3456熵
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
             let i19 = Math.floor(r19);
             
-            // 独裁逻辑: 如果命中 P0 区间，给予核弹级权重 (+1000)
             if([7,8,9].includes(d19)) { w.b+=1000; isDictator=true; }
             else if([0,1,2].includes(d19)) { w.s+=1000; isDictator=true; }
             
@@ -179,63 +274,51 @@
             }
 
             // --- P1: Algo 16 (几何) ---
-            // 规则: 跳水状态下锁定 P0 独裁
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
-            let score16 = isDive ? 1000 : 50; // 跳水直接 +1000
+            let score16 = isDive ? 1000 : 50; 
             if(isDive) isDictator = true;
             
             if(d16>=5) w.b+=score16; else w.s+=score16;
 
             // --- P1: Algo 14 (裂变) ---
-            // 规则: D 0-4 顺(买同), 5-9 裂(买反)
-            // 必须对比上一期结果 (prevItem)
             if(prevItem) {
                 let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
                 let d14 = KERNEL.getD(r14);
-                let w14 = 40; // 权重高一点
+                let w14 = 40; 
                 
                 let prevBs = prevItem.sum >= 14 ? 'Big' : 'Small';
                 
                 if(d14<=4) { 
-                    // 顺: 上期是大，这期加注大
                     if(prevBs==='Big') w.b+=w14; else w.s+=w14;
                 } else {
-                    // 裂: 上期是大，这期加注小
                     if(prevBs==='Big') w.s+=w14; else w.b+=w14;
                 }
             }
 
             // --- P2/P3: 常规堆叠 ---
-            // Algo 18
             let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
             (Math.floor(r18)%10%2!==0) ? w.o+=30 : w.e+=30;
             
-            // Algo 2
             let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
             (Math.floor(r2)%2===0) ? w.o+=30 : w.e+=30;
 
-            // --- P4: Algo 10 (极值修正 - 否决权) ---
-            // 规则: <0.333 反弹
+            // --- P4: Algo 10 (极值修正) ---
             let r10 = 280/(n1+C.EXT_DIV);
             let dec10 = r10 - Math.floor(r10);
             if(dec10 < 0.333) {
-                // 反弹 = 唱反调
-                // 如果当前 大>小，强制扣除大的分数，或者给小加分
-                // 这里使用惩罚机制，削弱当前优势方
-                if(w.b > w.s) w.b *= 0.6; // 削弱40%
+                if(w.b > w.s) w.b *= 0.6; 
                 else w.s *= 0.6;
             }
 
-            // --- Algo 3 (警报 - 归零) ---
+            // --- Algo 3 (警报) ---
             let r3 = (n1+n2+n3)/C.WARN_DIV;
             let d3 = KERNEL.getD(r3);
             if(d3===0 || d3===6) {
-                // 清空惯性: 所有权重归为底分
                 w.b=1; w.s=1; w.o=1; w.e=1;
             }
 
-            // --- 归一化 (10分制) ---
+            // --- 归一化 ---
             let total = w.b+w.s+w.o+w.e;
             let nW = { 
                 b: (w.b/total)*10, s: (w.s/total)*10, 
@@ -247,10 +330,8 @@
                 { name: "大单", s: w.b+w.o }, { name: "大双", s: w.b+w.e },
                 { name: "小单", s: w.s+w.o }, { name: "小双", s: w.s+w.e }
             ];
-            // 排序
             combos.sort((a,b) => b.s - a.s);
             
-            // 归一化组合
             let cTotal = combos.reduce((a,b)=>a+b.s,0);
             let nCombos = combos.map(c => ({ name: c.name, s: (c.s/cTotal)*10 }));
 
@@ -263,6 +344,7 @@
         document.getElementById('timer').innerText = "SYNC...";
         try {
             const t = Date.now();
+            // 使用 reliable proxy
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(STATE.api + "&t=" + t)}`);
             const json = await res.json();
             const data = JSON.parse(json.contents).data;
@@ -282,30 +364,27 @@
         if(list.length < 5) return;
 
         const cur = list[0];
-        const prev = list[1]; // 用于 Algo 14 对比
+        const prev = list[1]; 
 
         // 1. 本期预测
         const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, prev, list);
         
-        // 补偿死磕逻辑
+        // 2. 复仇逻辑
         let revenge = localStorage.getItem('v7_revenge');
         if(revenge) {
-            // 如果有复仇目标，检查它是否在杀组(idx 3)或防守(idx 2)
-            // 强制提权到主力
             let idx = res.nCombos.findIndex(c => c.name === revenge);
             if(idx >= 2) {
-                // 强行交换到第一名
                 let tmp = res.nCombos[0];
                 res.nCombos[0] = res.nCombos[idx];
                 res.nCombos[idx] = tmp;
             }
         }
 
+        // 3. UI 更新
         document.getElementById('tMain').innerText = `${res.nCombos[0].name} / ${res.nCombos[1].name}`;
         document.getElementById('tDef').innerText = res.nCombos[2].name;
         document.getElementById('tKill').innerText = res.nCombos[3].name;
 
-        // 渲染条
         const draw = (id, val) => {
             document.getElementById('b'+id).style.width = Math.min(100, val*10) + '%';
             document.getElementById('v'+id).innerText = val.toFixed(1);
@@ -318,52 +397,105 @@
             document.getElementById(`cV${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
         }
 
-        // 渲染复盘
+        // 4. 历史复盘 UI
         const hBox = document.getElementById('histList');
         hBox.innerHTML = '';
         
         let lastHit = false;
         let lastMain = '';
 
+        // 复盘显示最近10期
         for(let i=0; i<10; i++) {
-            const t = list[i]; // 目标
-            const p = list[i+1]; // 输入
-            const pp = list[i+2]; // 上上期(Algo14用)
+            const t = list[i]; 
+            const p = list[i+1]; 
+            const pp = list[i+2]; 
 
             const sim = KERNEL.run(p.n1, p.n2, p.n3, p.sum, pp, list);
-            
             const real = (t.sum>=14?'大':'小') + (t.sum%2!==0?'单':'双');
+            
             if(i===0) lastMain = sim.nCombos[0].name;
 
             let tag = ''; let cls = '';
-            // 命中: 主攻前2
+            // 主攻 (前2)
             if(sim.nCombos[0].name === real || sim.nCombos[1].name === real) {
                 tag = '命中'; cls = 'hit';
                 if(i===0) lastHit = true;
             } 
-            // 防守: 第3
+            // 防守 (第3)
             else if(sim.nCombos[2].name === real) {
                 tag = '防守'; cls = 'def';
             } 
-            // 偏离: 杀组
             else {
                 tag = '偏离'; cls = 'miss';
             }
 
             hBox.innerHTML += `
-                <div class="hist-item">
-                    <div><b>${t.q.slice(-4)}期</b> <span style="color:#8e8e93; margin-left:5px">[${t.sum}] ${real}</span></div>
+                <div class="hist-item hist-neu">
+                    <div><b style="color:var(--text-main)">${t.q.slice(-4)}期</b> <span style="color:var(--text-sub); margin-left:8px; font-weight:500;">${real} [${t.sum}]</span></div>
                     <div class="tag ${cls}">${tag}</div>
                 </div>`;
         }
 
-        // 设置复仇
-        if(!lastHit) {
-            // 没中，下把死磕这个方向
-            localStorage.setItem('v7_revenge', lastMain);
-        } else {
-            localStorage.removeItem('v7_revenge');
+        // 复仇状态更新
+        if(!lastHit) localStorage.setItem('v7_revenge', lastMain);
+        else localStorage.removeItem('v7_revenge');
+
+        // --- 5. 【新增逻辑】 计算六维准确率 (遍历所有历史) ---
+        calculateStats(list);
+    }
+
+    function calculateStats(list) {
+        let stats = {
+            bs: 0, oe: 0, 
+            main: 0, def: 0, kill: 0,
+            total: 0
+        };
+
+        // 从第0期开始，模拟历史每一期的预测（直到倒数第3期，因为需要前后数据）
+        // list[i] 是结果，list[i+1] 是输入
+        for(let i = 0; i < list.length - 2; i++) {
+            const target = list[i]; // 实际开奖
+            const input = list[i+1]; // 当期输入
+            const prev = list[i+2]; // 上期（辅助）
+
+            const sim = KERNEL.run(input.n1, input.n2, input.n3, input.sum, prev, list);
+            
+            // 真实属性
+            const realBig = target.sum >= 14;
+            const realOdd = target.sum % 2 !== 0;
+            const realCombo = (realBig?'大':'小') + (realOdd?'单':'双');
+
+            stats.total++;
+
+            // 1. 大小单项 (比较权重)
+            const predBig = sim.nW.b > sim.nW.s;
+            if(predBig === realBig) stats.bs++;
+
+            // 2. 单双单项
+            const predOdd = sim.nW.o > sim.nW.e;
+            if(predOdd === realOdd) stats.oe++;
+
+            // 3. 主攻 (前2命中)
+            if(sim.nCombos[0].name === realCombo || sim.nCombos[1].name === realCombo) stats.main++;
+
+            // 4. 防守 (第3命中)
+            if(sim.nCombos[2].name === realCombo) stats.def++;
+
+            // 5. 杀组 (杀组不等于结果即为成功)
+            if(sim.nCombos[3].name !== realCombo) stats.kill++;
         }
+
+        // 渲染底部面板
+        const calc = (v) => Math.round((v / stats.total) * 100) + "%";
+        
+        document.getElementById('acc-bs').innerText = calc(stats.bs);
+        document.getElementById('acc-oe').innerText = calc(stats.oe);
+        document.getElementById('acc-main').innerText = calc(stats.main);
+        document.getElementById('acc-def').innerText = calc(stats.def);
+        document.getElementById('acc-kill').innerText = calc(stats.kill);
+        
+        // 综合准确率 = (主攻+防守) / 总场次
+        document.getElementById('acc-total').innerText = calc(stats.main + stats.def);
     }
 
     function startTimer() {
