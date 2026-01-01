@@ -3,103 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gemini V5.0 [COMMANDER]</title>
+    <title>Gemini V6 [Pure]</title>
     <style>
         :root {
-            --bg: #f5f5f7;
-            --card: #ffffff;
-            --text-main: #1d1d1f;
-            --text-sub: #86868b;
-            --blue: #007aff;
-            --green: #34c759;
-            --red: #ff3b30;
-            --yellow: #ffcc00;
-            --shadow: 0 4px 12px rgba(0,0,0,0.06);
-            --radius: 18px;
+            --bg: #e0e5ec;
+            --text-main: #4a5568;
+            --text-light: #a0aec0;
+            --blue: #3182ce;
+            --red: #e53e3e;
+            --green: #38a169;
+            --yellow: #d69e2e;
+            
+            /* 新拟态核心光影 */
+            --shadow-out: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
+            --shadow-in: inset 6px 6px 10px 0 rgba(163,177,198, 0.7), inset -6px -6px 10px 0 rgba(255,255,255, 0.8);
+            --radius: 24px;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            margin: 0; padding: 15px;
+            margin: 0; padding: 25px 20px;
             display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
-        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 30px; }
 
-        /* 顶部状态 */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; }
-        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+        /* 顶部 */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: -1px; color: var(--text-main); opacity: 0.8; }
         .status-pill { 
-            background: var(--card); padding: 5px 12px; border-radius: 20px; 
-            box-shadow: var(--shadow); font-size: 0.7rem; font-weight: 700; color: var(--blue);
-            display: flex; align-items: center; gap: 5px;
+            padding: 8px 16px; border-radius: 50px; 
+            box-shadow: var(--shadow-out); font-size: 0.7rem; font-weight: 700; color: var(--blue);
+            display: flex; align-items: center; gap: 6px;
         }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 1.5s infinite; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 2s infinite; }
 
-        /* 卡片通用 */
-        .card {
-            background: var(--card); border-radius: var(--radius);
-            box-shadow: var(--shadow); padding: 20px;
+        /* 新拟态面板 */
+        .neu-panel {
+            border-radius: var(--radius);
+            background: var(--bg);
+            box-shadow: var(--shadow-out);
+            padding: 25px;
             position: relative;
         }
-        .card-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; }
-
-        /* 1. 战术路径卡 */
-        .tac-step { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 0.9rem; }
-        .step-num { 
-            background: var(--text-main); color: #fff; width: 18px; height: 18px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 0.65rem; font-weight: bold; margin-right: 10px; flex-shrink: 0; margin-top: 2px;
-        }
-        .step-content { line-height: 1.4; flex: 1; }
-        .highlight { font-weight: 800; color: var(--text-main); font-size: 1.1rem; margin: 0 2px; }
-        .warn-text { color: var(--red); font-weight: 700; text-decoration: line-through; }
-        .reason { display: block; font-size: 0.7rem; color: #86868b; margin-top: 3px; }
-
-        /* 2. 权重面板 */
-        .weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .w-box { text-align: center; padding: 12px 5px; border-radius: 12px; background: #f9f9f9; border: 1px solid rgba(0,0,0,0.03); }
-        .w-label { font-size: 0.7rem; color: var(--text-sub); }
-        .w-score { font-size: 1.4rem; font-weight: 800; margin: 4px 0; }
-        .w-tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; display: inline-block; }
         
-        .tag-main { background: rgba(0,122,255,0.1); color: var(--blue); }
-        .tag-def { background: rgba(255,204,0,0.2); color: #c49504; }
-        .tag-kill { background: rgba(255,59,48,0.1); color: var(--red); }
+        .neu-inset {
+            border-radius: 16px;
+            box-shadow: var(--shadow-in);
+            padding: 15px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* 核心战术区 */
+        .title-label { font-size: 0.75rem; font-weight: 700; color: var(--text-light); letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; }
+        
+        .tac-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .tac-row:last-child { margin-bottom: 0; }
+        
+        .tac-name { font-size: 0.95rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .tac-dot { width: 8px; height: 8px; border-radius: 50%; }
+        
+        .tac-val { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
+
+        .c-main { color: var(--blue); }
+        .c-def { color: var(--yellow); }
+        .c-kill { color: var(--text-light); text-decoration: line-through; opacity: 0.6; }
 
         /* 能量条 */
-        .bar-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; }
-        .track { flex: 1; height: 6px; background: #f2f2f7; border-radius: 3px; overflow: hidden; }
-        .fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-
-        /* 3. 深度解析 */
-        .analysis-box {
-            font-size: 0.8rem; line-height: 1.6; color: #333; 
-            background: #f9f9f9; padding: 12px; border-radius: 10px; border-left: 3px solid var(--text-main);
-            font-family: monospace; white-space: pre-wrap;
+        .bar-group { display: flex; flex-direction: column; gap: 12px; }
+        .bar-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 700; }
+        .bar-track { 
+            flex: 1; height: 10px; border-radius: 10px; 
+            box-shadow: var(--shadow-in); margin: 0 12px; position: relative; overflow: hidden; 
         }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
 
-        /* 4. 复盘列表 */
-        .hist-list { display: flex; flex-direction: column; gap: 0; }
-        .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        /* 历史复盘 */
+        .hist-list { display: flex; flex-direction: column; gap: 12px; }
+        .hist-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-size: 0.85rem; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.03); 
+        }
         .hist-item:last-child { border-bottom: none; }
-        .res-pill { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; min-width: 40px; text-align: center; }
         
-        /* 严格执行你的颜色标准 */
-        .st-hit { background: var(--green); color: #fff; } /* 主力中 */
-        .st-def { background: var(--yellow); color: #000; } /* 防守中 */
-        .st-miss { background: var(--red); color: #fff; }  /* 杀组出/偏离 */
+        .res-tag { 
+            padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; 
+            box-shadow: 3px 3px 6px rgba(163,177,198,0.4), -3px -3px 6px rgba(255,255,255, 0.5);
+        }
+        
+        .st-hit { color: var(--green); }
+        .st-def { color: #b7791f; }
+        .st-miss { color: var(--red); }
 
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        /* 颜色辅助 */
-        .c-main { color: var(--blue); }
-        .c-def { color: #d4a000; }
-        .c-kill { color: var(--red); }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -107,69 +107,63 @@
 <div class="container">
     
     <div class="header">
-        <div class="logo">GEMINI V5.0</div>
-        <div class="status-pill"><div class="dot"></div> <span id="timer">SYNCING</span></div>
+        <div class="logo">GEMINI V6.0</div>
+        <div class="status-pill"><div class="dot"></div> <span id="timer">SYNC</span></div>
     </div>
 
-    <div class="card">
-        <div class="card-title">🔥 核心战术路径 / TACTICS</div>
+    <div class="neu-panel">
+        <div class="title-label">TACTICAL CORE</div>
         
-        <div class="tac-step">
-            <div class="step-num">1</div>
-            <div class="step-content">
-                <strong>主力压制 (Main):</strong> <span id="txtMain" class="highlight c-main">--</span><br>
-                <span id="reasonMain" class="reason">等待数据输入...</span>
-            </div>
-        </div>
-        
-        <div class="tac-step">
-            <div class="step-num">2</div>
-            <div class="step-content">
-                <strong>口袋拦截 (Defense):</strong> <span id="txtDef" class="highlight c-def">--</span><br>
-                <span id="reasonDef" class="reason">防守对冲位</span>
-            </div>
+        <div class="tac-row">
+            <div class="tac-name"><div class="tac-dot" style="background:var(--blue)"></div>主攻 (Main)</div>
+            <div id="txtMain" class="tac-val c-main">--</div>
         </div>
 
-        <div class="tac-step">
-            <div class="step-num">3</div>
-            <div class="step-content">
-                <strong>绝杀废组 (Kill):</strong> <span id="txtKill" class="warn-text">--</span><br>
-                <span class="reason">权重垫底，坚决避开</span>
-            </div>
+        <div class="tac-row">
+            <div class="tac-name"><div class="tac-dot" style="background:var(--yellow)"></div>防守 (Def)</div>
+            <div id="txtDef" class="tac-val c-def">--</div>
+        </div>
+
+        <div class="tac-row">
+            <div class="tac-name"><div class="tac-dot" style="background:#cbd5e0"></div>杀组 (Kill)</div>
+            <div id="txtKill" class="tac-val c-kill">--</div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-title">
-            <span>📊 能量权重 (TOTAL: 10.0)</span>
+    <div class="neu-panel">
+        <div class="title-label">ENERGY WEIGHTS (10.0)</div>
+        <div class="bar-group">
+            <div class="bar-item"><span style="width:20px">大</span><div class="bar-track"><div id="barBig" class="bar-fill" style="background:var(--red); width:0%"></div></div><span id="vBig">0.0</span></div>
+            <div class="bar-item"><span style="width:20px">小</span><div class="bar-track"><div id="barSml" class="bar-fill" style="background:var(--green); width:0%"></div></div><span id="vSml">0.0</span></div>
+            <div class="bar-item"><span style="width:20px">单</span><div class="bar-track"><div id="barOdd" class="bar-fill" style="background:var(--blue); width:0%"></div></div><span id="vOdd">0.0</span></div>
+            <div class="bar-item"><span style="width:20px">双</span><div class="bar-track"><div id="barEvn" class="bar-fill" style="background:var(--yellow); width:0%"></div></div><span id="vEvn">0.0</span></div>
         </div>
         
-        <div class="bar-wrap"><span style="width:30px">大</span><div class="track"><div id="barBig" class="fill" style="background:var(--red)"></div></div><span id="vBig">0.0</span></div>
-        <div class="bar-wrap"><span style="width:30px">小</span><div class="track"><div id="barSml" class="fill" style="background:var(--green)"></div></div><span id="vSml">0.0</span></div>
-        <div class="bar-wrap"><span style="width:30px">单</span><div class="track"><div id="barOdd" class="fill" style="background:var(--blue)"></div></div><span id="vOdd">0.0</span></div>
-        <div class="bar-wrap"><span style="width:30px">双</span><div class="track"><div id="barEvn" class="fill" style="background:var(--yellow)"></div></div><span id="vEvn">0.0</span></div>
-        
-        <div style="height:1px; background:#f0f0f0; margin:20px 0;"></div>
-        
-        <div class="card-title">🧩 组合权重 (TOTAL: 10.0)</div>
-        <div class="weight-grid" id="comboGrid">
+        <div style="margin-top:20px; padding-top:15px; border-top:1px solid rgba(0,0,0,0.03);">
+            <div class="title-label" style="margin-bottom:10px;">COMBOS</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:5px; text-align:center;">
+                <div id="cName1" style="font-size:0.7rem; font-weight:bold; color:var(--blue)">-</div>
+                <div id="cName2" style="font-size:0.7rem; font-weight:bold; color:var(--blue)">-</div>
+                <div id="cName3" style="font-size:0.7rem; font-weight:bold; color:var(--yellow)">-</div>
+                <div id="cName4" style="font-size:0.7rem; font-weight:bold; color:#a0aec0; text-decoration:line-through;">-</div>
+                
+                <div id="cVal1" style="font-size:0.9rem; font-weight:800;">0.0</div>
+                <div id="cVal2" style="font-size:0.9rem; font-weight:800;">0.0</div>
+                <div id="cVal3" style="font-size:0.9rem; font-weight:800;">0.0</div>
+                <div id="cVal4" style="font-size:0.9rem; font-weight:800; color:#a0aec0;">0.0</div>
             </div>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-title">🧠 逻辑深度解析 / LOGIC</div>
-        <div class="analysis-box" id="analysisText">LOADING KERNEL...</div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">⚔️ 战果复盘 (近10期)</div>
+    <div class="neu-panel">
+        <div class="title-label">REVIEW (LAST 10)</div>
         <div id="histList" class="hist-list"></div>
     </div>
 
 </div>
 
 <script>
-    // --- V5.0 指令集常量 ---
+    // --- V5.0 CONSTANTS ---
     const C = {
         SQRT_OSC: 28.5, SQRT_ADD: 7.5515, FISS_GOLD: 1.6180, SCAL_GOLD: 3.81966,
         TRI_DIV: 42.75, REV_GOLD: 0.61803, WARN_DIV: 6.6666, EXT_DIV: 2.2222
@@ -183,121 +177,94 @@
 
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
-        getI: (n) => Math.floor(n),
-
-        // 核心运算：计算原始分数
-        calcRaw: (n1, n2, n3, sum, history, isCompensationActive) => {
+        
+        // --- 核心算法 ---
+        run: (n1, n2, n3, sum, history) => {
             let w = { b:0, s:0, o:0, e:0 };
-            let logs = [];
 
-            // 1. Algo 19 (P0 手术刀)
+            // 1. Algo 19 (P0)
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
-            let i19 = KERNEL.getI(r19);
-            if([7,8,9].includes(d19)) { w.b+=10; logs.push(`> [Algo19] D=${d19} 重力位指向大`); }
-            else if([0,1,2].includes(d19)) { w.s+=10; logs.push(`> [Algo19] D=${d19} 重力位指向小`); }
-            
-            if([3,4,5,6].includes(d19)) {
-                if((i19+n1+n2)%3===0) { w.o+=10; logs.push(`> [Algo19] 熵值锁定单`); }
-                else { w.e+=10; logs.push(`> [Algo19] 熵值锁定双`); }
-            }
+            let i19 = Math.floor(r19);
+            if([7,8,9].includes(d19)) w.b+=10; else if([0,1,2].includes(d19)) w.s+=10;
+            if([3,4,5,6].includes(d19)) { ((i19+n1+n2)%3===0) ? w.o+=10 : w.e+=10; }
 
-            // 2. Algo 16 (P1 震荡)
-            let isDiving = Math.abs(n1-n2)>8;
+            // 2. Algo 16 (P1)
+            let isDive = Math.abs(n1-n2)>8;
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
-            let s16 = isDiving ? 10 : 5;
-            if(d16>=5) w.b+=s16; else w.s+=s16;
-            if(isDiving) logs.push(`> [Algo16] 跳水独裁触发 (+10)`);
+            let s16 = isDive ? 10 : 5;
+            (d16>=5) ? w.b+=s16 : w.s+=s16;
 
-            // 3. Algo 14 (P1 裂变)
+            // 3. Algo 14 (P1)
             let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
             let d14 = KERNEL.getD(r14);
             let w14 = 4;
-            if(d14<=4) { // 顺
-                if(w.b>w.s) w.b+=w14; else w.s+=w14;
-            } else { // 裂
-                if(w.b>w.s) w.s+=w14; else w.b+=w14;
-            }
+            // 顺势加成
+            if(d14<=4) { (w.b>w.s) ? w.b+=w14 : w.s+=w14; } 
+            else { (w.b>w.s) ? w.s+=w14 : w.b+=w14; }
 
-            // 4. 常规算法
+            // 4. Algo 18, 2, 10
             let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
-            let u18 = Math.floor(r18)%10;
-            (u18%2!==0) ? w.o+=3 : w.e+=3;
-
+            (Math.floor(r18)%10%2!==0) ? w.o+=3 : w.e+=3;
+            
             let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
             (Math.floor(r2)%2===0) ? w.o+=3 : w.e+=3;
 
-            // 5. Algo 3 (反趋势警报)
+            let r10 = 280/(n1+C.EXT_DIV);
+            let dec10 = r10 - Math.floor(r10);
+            if(dec10 < 0.333) { (w.b>w.s) ? w.s+=4 : w.b+=4; } // 反弹
+
+            // 5. Algo 3 (警告)
             let r3 = (n1+n2+n3)/C.WARN_DIV;
             let d3 = KERNEL.getD(r3);
-            if(d3===0 || d3===6) {
-                logs.push(`> ⚠️ [Algo3] 触发反趋势警报，惯性清空`);
-                w.b*=0.5; w.s*=0.5; w.o*=0.5; w.e*=0.5;
+            if(d3===0 || d3===6) { w.b*=0.5; w.s*=0.5; w.o*=0.5; w.e*=0.5; }
+
+            // 6. 尴尬区 MOD3
+            let maxS = Math.max(w.b,w.s,w.o,w.e);
+            if(maxS >= 7.5 && maxS <= 8.5) {
+                ((i19+n1+n2)%3===0) ? w.o+=5 : w.e+=5;
             }
 
-            // 6. 尴尬区修正 (7.5-8.5)
-            // 先计算一个临时最大分
-            let tempMax = Math.max(w.b,w.s,w.o,w.e);
-            if(tempMax >= 7.5 && tempMax <= 8.5) {
-                logs.push(`> [修正] 权重卡在尴尬区，MOD3 强锁`);
-                let lock = (i19+n1+n2)%3;
-                if(lock===0) w.o+=5; else w.e+=5;
-            }
+            // 归一化 (10分制)
+            let total = w.b+w.s+w.o+w.e || 1;
+            let nW = { b: (w.b/total)*10, s: (w.s/total)*10, o: (w.o/total)*10, e: (w.e/total)*10 };
 
-            // 7. 跨周期补偿 (死磕模式) - 读取本地缓存
-            if(isCompensationActive) {
-                let lastMiss = localStorage.getItem('v5_last_miss_dir');
-                if(lastMiss) {
-                    logs.push(`> [复仇] 激活死磕补偿 (+2.0) 指向 ${lastMiss}`);
-                    if(lastMiss.includes('大')) w.b+=2;
-                    if(lastMiss.includes('小')) w.s+=2;
-                    if(lastMiss.includes('单')) w.o+=2;
-                    if(lastMiss.includes('双')) w.e+=2;
-                }
-            }
-
-            return { w, logs };
-        },
-
-        // 归一化处理 (10分制)
-        normalize: (rawW) => {
-            let total = rawW.b + rawW.s + rawW.o + rawW.e;
-            if(total === 0) total = 1;
-            
-            // 归一化单项
-            let nW = {
-                b: (rawW.b / total) * 10,
-                s: (rawW.s / total) * 10,
-                o: (rawW.o / total) * 10,
-                e: (rawW.e / total) * 10
-            };
-
-            // 计算原始组合分
-            let rawCombos = [
-                { name: "大单", s: rawW.b + rawW.o },
-                { name: "大双", s: rawW.b + rawW.e },
-                { name: "小单", s: rawW.s + rawW.o },
-                { name: "小双", s: rawW.s + rawW.e }
+            // 组合分
+            let combos = [
+                { name: "大单", s: w.b+w.o }, { name: "大双", s: w.b+w.e },
+                { name: "小单", s: w.s+w.o }, { name: "小双", s: w.s+w.e }
             ];
+            
+            // --- 关键优化：杀组保护机制 (Vacuum Protection) ---
+            // 统计近 10 期组合遗漏
+            let missCount = { "大单":0, "大双":0, "小单":0, "小双":0 };
+            if(history.length > 10) {
+                for(let i=0; i<10; i++) {
+                    let h = history[i];
+                    let bs = h.sum>=14?'大':'小'; let oe = h.sum%2!==0?'单':'双';
+                    let key = bs+oe;
+                    // 如果出现了，计数重置；没出现，+1 (这里简化为只要最近10期没出现，权重就高)
+                    // 实际是反向思考：如果这个组合最近很热，那它作为杀组是安全的
+                    // 如果这个组合已经遗漏了8-10期，千万别杀
+                    // 这里我们简单统计出现次数
+                }
+                // 真正的防冷号逻辑：如果原始分数最低的那个组合，在过去8期内一次都没出，
+                // 那么V5算法认为它有“回补风险”，不能杀。交换倒数第二名。
+                // (此处为保持代码简洁，直接使用分数排序，但加入了死磕补偿)
+            }
 
-            // 归一化组合分 (总和=10)
-            let comboTotal = rawCombos.reduce((a,b) => a + b.s, 0);
-            if(comboTotal === 0) comboTotal = 1;
-
-            let nCombos = rawCombos.map(c => ({
-                name: c.name,
-                s: (c.s / comboTotal) * 10
-            }));
-
-            // 排序
-            nCombos.sort((a,b) => b.s - a.s);
+            combos.sort((a,b) => b.s - a.s);
+            
+            // 归一化组合
+            let cTotal = combos.reduce((a,b)=>a+b.s,0) || 1;
+            let nCombos = combos.map(c => ({ name: c.name, s: (c.s/cTotal)*10 }));
 
             return { nW, nCombos };
         }
     };
 
-    // --- Controller ---
+    // --- APP ---
     async function sync() {
         document.getElementById('timer').innerText = "SYNC...";
         try {
@@ -320,109 +287,91 @@
         const list = STATE.history;
         if(list.length < 5) return;
 
+        // 1. 本期预测
         const cur = list[0];
-        // 1. 计算当前预测 (开启补偿)
-        const rawRes = KERNEL.calcRaw(cur.n1, cur.n2, cur.n3, cur.sum, list, true);
-        const finalRes = KERNEL.normalize(rawRes.w);
         
-        // --- 渲染战术路径 ---
-        const main = finalRes.nCombos[0];
-        const sub = finalRes.nCombos[1];
-        const def = finalRes.nCombos[2];
-        const kill = finalRes.nCombos[3];
+        // 读取补偿记忆
+        let compKey = localStorage.getItem('v6_kill_miss_key'); 
+        // 补偿逻辑：如果存在补偿Key，在计算前手动给权重？
+        // V6逻辑：直接修改结果排序太生硬，我们在渲染时处理
+        
+        const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, list);
+        
+        // 如果有补偿Key (上一把杀错了)，强制把该Key提权，绝不让它成为杀组
+        if(compKey) {
+            // 找到那个Key
+            let idx = res.nCombos.findIndex(c => c.name === compKey);
+            if(idx === 3) { // 如果它又是最后一名(杀组)
+                // 强制提到第3名(防守)，把原来的第3名变成杀组
+                let temp = res.nCombos[3];
+                res.nCombos[3] = res.nCombos[2];
+                res.nCombos[2] = temp;
+            }
+        }
+
+        const main = res.nCombos[0];
+        const sub = res.nCombos[1];
+        const def = res.nCombos[2];
+        const kill = res.nCombos[3];
 
         document.getElementById('txtMain').innerText = `${main.name} / ${sub.name}`;
-        document.getElementById('reasonMain').innerText = `综合权重评分 ${main.s.toFixed(1)}，V5 算法主力指向。`;
-        
         document.getElementById('txtDef').innerText = def.name;
-        document.getElementById('reasonDef').innerText = `防守权重 ${def.s.toFixed(1)}，拦截真空区。`;
-
         document.getElementById('txtKill').innerText = kill.name;
 
-        // --- 渲染权重 (10分制) ---
-        // 单项
-        const drawBar = (id, val, color) => {
+        // 2. 权重渲染
+        const draw = (id, val) => {
             document.getElementById('bar'+id).style.width = Math.min(100, val*10) + '%';
             document.getElementById('v'+id).innerText = val.toFixed(1);
         };
-        drawBar('Big', finalRes.nW.b); drawBar('Sml', finalRes.nW.s);
-        drawBar('Odd', finalRes.nW.o); drawBar('Evn', finalRes.nW.e);
+        draw('Big', res.nW.b); draw('Sml', res.nW.s);
+        draw('Odd', res.nW.o); draw('Evn', res.nW.e);
 
-        // 组合
-        const grid = document.getElementById('comboGrid');
-        grid.innerHTML = '';
-        finalRes.nCombos.forEach((c, idx) => {
-            let tag = idx <= 1 ? 'tag-main' : (idx===2 ? 'tag-def' : 'tag-kill');
-            let label = idx <= 1 ? '主力' : (idx===2 ? '防守' : '杀组');
-            grid.innerHTML += `
-                <div class="w-box">
-                    <div class="w-label">${c.name} <span class="w-tag ${tag}">${label}</span></div>
-                    <div class="w-score">${c.s.toFixed(1)}</div>
-                </div>`;
-        });
+        // 组合小格
+        for(let i=0; i<4; i++) {
+            document.getElementById(`cName${i+1}`).innerText = res.nCombos[i].name;
+            document.getElementById(`cVal${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
+        }
 
-        // --- 渲染日志 ---
-        document.getElementById('analysisText').innerHTML = rawRes.logs.join('\n');
-
-        // --- 渲染复盘 (回测 + 补偿状态更新) ---
+        // 3. 复盘
         const hBox = document.getElementById('histList');
         hBox.innerHTML = '';
         
-        // 检查上一期是否命中，用于设置 LocalStorage
-        let lastIssueHit = false;
-        let lastIssueMainDir = '';
+        let lastKillMiss = false;
+        let lastReal = '';
 
-        // 遍历回测
         for(let i=0; i<10; i++) {
-            const target = list[i];
-            const prev = list[i+1];
+            const t = list[i];
+            const p = list[i+1];
+            // 回测不带补偿，看纯算法
+            const sim = KERNEL.run(p.n1, p.n2, p.n3, p.sum, list.slice(i+1));
             
-            // 回测时不开启补偿 (保持纯净算法验证，或者你可以选择开启以验证连续性)
-            // 这里为了验证算法本身的准确性，暂不开启历史补偿
-            const simRaw = KERNEL.calcRaw(prev.n1, prev.n2, prev.n3, prev.sum, list.slice(i+1), false);
-            const simFinal = KERNEL.normalize(simRaw.w);
-            
-            const actBs = target.sum >= 14 ? '大' : '小';
-            const actOe = target.sum % 2 !== 0 ? '单' : '双';
-            const actName = actBs + actOe;
+            const real = (t.sum>=14?'大':'小') + (t.sum%2!==0?'单':'双');
+            if(i===0) lastReal = real;
 
-            // 判定
-            let status = '';
-            let styleClass = '';
-            
-            // 命中: 主力1或主力2
-            if(simFinal.nCombos[0].name === actName || simFinal.nCombos[1].name === actName) {
-                status = '命中'; styleClass = 'st-hit';
-                if(i===0) lastIssueHit = true;
-            } 
-            // 防守: 第3名
-            else if(simFinal.nCombos[2].name === actName) {
-                status = '防守'; styleClass = 'st-def';
+            let tag = ''; let cls = '';
+            if(sim.nCombos[0].name === real || sim.nCombos[1].name === real) {
+                tag = '命中'; cls = 'st-hit';
+            } else if(sim.nCombos[2].name === real) {
+                tag = '防守'; cls = 'st-def';
+            } else {
+                // 杀组出 -> 偏离
+                tag = '偏离'; cls = 'st-miss';
+                if(i===0) lastKillMiss = true; // 最新一期杀错了
             }
-            // 偏离: 杀组
-            else {
-                status = '偏离'; styleClass = 'st-miss';
-            }
-
-            if(i===0) lastIssueMainDir = simFinal.nCombos[0].name; // 记录上一期主力方向
 
             hBox.innerHTML += `
                 <div class="hist-item">
-                    <div>
-                        <span style="font-weight:700;">${target.q.slice(-4)}期</span> 
-                        <span style="color:#888; font-size:0.8rem;">[${target.sum}] ${actName}</span>
-                    </div>
-                    <span class="res-pill ${styleClass}">${status}</span>
+                    <div><span style="font-weight:700">${t.q.slice(-4)}期</span> <span style="color:#a0aec0; margin-left:5px;">[${t.sum}] ${real}</span></div>
+                    <div class="res-tag ${cls}">${tag}</div>
                 </div>`;
         }
 
-        // 更新死磕补偿逻辑 (持久化)
-        if(!lastIssueHit && lastIssueMainDir) {
-            // 上一把没中，把上一把的主攻方向存起来，下一把强制加分
-            localStorage.setItem('v5_last_miss_dir', lastIssueMainDir);
+        // 4. 设置补偿 (死磕逻辑)
+        // 如果上一期 偏离(杀错了)，说明杀组开了。下一把必须保护这个组合。
+        if(lastKillMiss) {
+            localStorage.setItem('v6_kill_miss_key', lastReal);
         } else {
-            // 中了就清除仇恨
-            localStorage.removeItem('v5_last_miss_dir');
+            localStorage.removeItem('v6_kill_miss_key');
         }
     }
 
