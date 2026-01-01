@@ -3,169 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GEMINI V7.0 [PRO DARK]</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Cz算法 V3 [ULTIMATE]</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        /* * ==========================================================================
+         * GLOBAL VARIABLES & RESET
+         * 全局变量定义 - 赛博暗黑配色方案
+         * ==========================================================================
+         */
         :root {
+            /* 背景色系 */
             --bg-deep: #050505;
-            --bg-card: rgba(20, 20, 23, 0.7);
-            --bg-glass: rgba(255, 255, 255, 0.03);
-            --border-glass: rgba(255, 255, 255, 0.08);
+            --bg-overlay: rgba(0, 0, 0, 0.4);
             
-            --primary: #3b82f6; /* 蓝 - 主攻 */
-            --accent: #f59e0b;  /* 黄 - 防守 */
-            --danger: #ef4444;  /* 红 - 杀/大 */
-            --success: #10b981; /* 绿 - 小 */
-            --purple: #8b5cf6;  /* 紫 - 单 */
-            --cyan: #06b6d4;    /* 青 - 双 */
+            /* 卡片玻璃态背景 */
+            --card-bg: rgba(20, 20, 23, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shine: rgba(255, 255, 255, 0.03);
             
-            --text-main: #e2e8f0;
-            --text-sub: #64748b;
+            /* 功能色系 (高亮) */
+            --primary: #3b82f6;   /* 主力 - 蓝 */
+            --primary-glow: rgba(59, 130, 246, 0.4);
             
+            --accent: #f59e0b;    /* 防守 - 黄 */
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            
+            --danger: #ef4444;    /* 杀组/大 - 红 */
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            
+            --success: #10b981;   /* 小 - 绿 */
+            --purple: #8b5cf6;    /* 单 - 紫 */
+            --cyan: #06b6d4;      /* 双 - 青 */
+            
+            /* 文字颜色 */
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --text-dark: #0f172a;
+
+            /* 字体栈 */
             --font-num: 'JetBrains Mono', monospace;
-            --font-ui: 'Inter', sans-serif;
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            /* 布局间距 */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* 基础重置 */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-deep);
+            /* 动态背景光效 */
             background-image: 
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
             color: var(--text-main);
             font-family: var(--font-ui);
-            margin: 0; padding: 20px 16px 40px 16px;
             min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px 60px 16px;
         }
 
-        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px; }
-
-        /* --- Header --- */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .brand { 
-            font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; gap: 8px;
+        /* * ==========================================================================
+         * COMPONENT: LAYOUT CONTAINER
+         * 容器样式
+         * ==========================================================================
+         */
+        .container {
+            width: 100%;
+            max-width: 420px; /* 稍微加宽一点适应复杂数据 */
+            display: flex;
+            flex-direction: column;
+            gap: 28px; /* 增加卡片间距 */
         }
-        .brand::before { content:''; display:block; width:4px; height:16px; background:var(--primary); border-radius:2px; }
+
+        /* * ==========================================================================
+         * COMPONENT: HEADER
+         * 顶部导航栏
+         * ==========================================================================
+         */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
         
-        .status-badge { 
-            font-family: var(--font-num); font-size: 0.75rem; 
-            padding: 4px 12px; border-radius: 99px;
-            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);
-            color: var(--success); display: flex; align-items: center; gap: 6px;
+        .brand::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--primary);
         }
-        .pulse-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
 
-        /* --- Glass Cards --- */
+        .status-badge {
+            font-family: var(--font-num);
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 99px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        /* * ==========================================================================
+         * COMPONENT: GLASS CARD
+         * 通用卡片样式 - 核心容器
+         * ==========================================================================
+         */
         .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
+            background: var(--card-bg);
+            /* 毛玻璃特效 */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-top: 1px solid rgba(255,255,255,0.15); /* 顶部高光 */
             border-radius: 24px;
             padding: 24px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
+            transition: transform 0.2s ease;
         }
-        
-        .card-label {
-            position: absolute; top: 16px; left: 24px;
-            font-size: 0.7rem; font-weight: 700; color: var(--text-sub);
-            letter-spacing: 1px; text-transform: uppercase;
-        }
+
+        /* 卡片右上角装饰光 */
         .card-deco {
-            position: absolute; top: 0; right: 0;
-            width: 100px; height: 100px;
-            background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 70%);
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
             pointer-events: none;
         }
 
-        /* --- Tactical Core (Main Display) --- */
-        .tac-grid { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
-        .tac-box {
-            background: var(--bg-glass); border-radius: 16px; padding: 16px;
-            display: flex; flex-direction: column; align-items: center;
-            border: 1px solid var(--border-glass);
+        .card-label {
+            position: absolute;
+            top: 18px;
+            left: 24px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .tac-box.main { border-color: rgba(59, 130, 246, 0.3); background: radial-gradient(circle at center, rgba(59,130,246,0.1), transparent); }
-        .tac-box.kill { border-color: rgba(239, 68, 68, 0.15); opacity: 0.8; }
         
-        .tac-title { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px; }
-        .tac-val { 
-            font-family: var(--font-num); font-size: 1.5rem; font-weight: 800; 
-            letter-spacing: -1px; text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        .card-label::after {
+            content: '';
+            display: block;
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            width: 20px;
         }
 
+        /* * ==========================================================================
+         * SECTION: TACTICAL CORE (MAIN DASHBOARD)
+         * 战术核心区域样式
+         * ==========================================================================
+         */
+        .tac-grid {
+            margin-top: 28px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .tac-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        /* 主力推荐 - 占据整行 */
+        .tac-box.main {
+            grid-column: span 2;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, rgba(0,0,0,0.2) 100%);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 30px -10px rgba(59, 130, 246, 0.15);
+        }
+
+        /* 杀组 - 红色警示 */
+        .tac-box.kill {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.05) 0%, rgba(0,0,0,0.2) 100%);
+        }
+
+        .tac-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tac-val {
+            font-family: var(--font-num);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
+        }
+
+        /* 颜色定义类 */
         .c-main { color: var(--primary); }
         .c-def { color: var(--accent); }
-        .c-kill { color: var(--text-sub); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--danger); opacity: 0.5; }
+        .c-kill { 
+            color: var(--danger); 
+            text-decoration: line-through; 
+            text-decoration-thickness: 2px;
+            opacity: 0.8;
+        }
 
-        /* --- Energy Bars (HUD Style) --- */
-        .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; margin-top: 25px; }
+        /* * ==========================================================================
+         * SECTION: ENERGY MATRIX (BARS)
+         * 能量条与权重显示
+         * ==========================================================================
+         */
+        .hud-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 16px; /* 行间距加大 */
+            margin-top: 35px;
+        }
+
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hud-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
         
-        .hud-item { display: flex; flex-direction: column; gap: 6px; }
-        .hud-head { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+        .hud-head span:last-child {
+            color: var(--text-main);
+            font-family: var(--font-num);
+        }
+
         .hud-track {
-            height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; position: relative;
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
+
         .hud-bar {
-            height: 100%; border-radius: 3px; position: relative;
-            box-shadow: 0 0 10px currentColor; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
+            box-shadow: 0 0 15px currentColor; /* 发光效果 */
+            position: relative;
+        }
+        
+        /* 增加条纹动画效果 */
+        .hud-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(
+                45deg,
+                rgba(255,255,255,0.1) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(255,255,255,0.1) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 10px 10px;
+            opacity: 0.3;
         }
 
-        /* Combo Mini Grid */
-        .combo-row { 
-            display: flex; justify-content: space-between; 
-            margin-top: 20px; padding-top: 15px; 
-            border-top: 1px solid var(--border-glass); 
+        /* * ==========================================================================
+         * SECTION: COMBO MINI STATS
+         * 底部四个组合的小数据展示
+         * ==========================================================================
+         */
+        .combo-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
         }
-        .mini-stat { text-align: center; }
-        .ms-label { font-size: 0.65rem; color: var(--text-sub); margin-bottom: 4px; }
-        .ms-val { font-family: var(--font-num); font-weight: 700; font-size: 0.9rem; }
 
-        /* --- History (Terminal Style) --- */
-        #histList { margin-top: 25px; display: flex; flex-direction: column; gap: 8px; }
+        .mini-stat {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        /* 分隔线 */
+        .mini-stat:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .ms-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .ms-val {
+            font-family: var(--font-num);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        /* * ==========================================================================
+         * SECTION: HISTORY LOGS
+         * 历史记录列表样式
+         * ==========================================================================
+         */
+        #histList {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .log-row {
-            display: grid; grid-template-columns: 60px 1fr 50px; align-items: center;
-            padding: 10px 12px; border-radius: 8px;
-            background: rgba(0,0,0,0.2); border: 1px solid transparent;
-            font-size: 0.85rem; font-family: var(--font-num);
+            display: grid;
+            grid-template-columns: 70px 1fr 70px; /* 调整列宽 */
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid transparent;
+            font-size: 0.85rem;
+            font-family: var(--font-num);
             transition: all 0.2s;
         }
-        .log-row:first-child { 
-            background: rgba(59, 130, 246, 0.08); 
-            border-color: rgba(59, 130, 246, 0.2); 
+
+        .log-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* 最新一条高亮 */
+        .log-row:first-child {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .log-q { color: var(--text-muted); font-size: 0.8rem; }
+        
+        .log-r { 
+            font-weight: 700; 
+            color: var(--text-main); 
+            text-align: center; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .log-sum {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tag-hit { color: var(--success); text-align: right; font-weight: 800; text-shadow: 0 0 10px rgba(16,185,129,0.3); }
+        .tag-def { color: var(--accent); text-align: right; font-weight: 600; }
+        .tag-miss { color: var(--danger); text-align: right; opacity: 0.6; }
+
+        /* * ==========================================================================
+         * SECTION: ANALYTICS (HEX GRID)
+         * 六维统计面板
+         * ==========================================================================
+         */
+        .stat-hex-grid {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .hex-item {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            padding: 16px 0;
+            text-align: center;
+            border: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hex-t {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .hex-v {
+            font-family: var(--font-num);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* * ==========================================================================
+         * ANIMATIONS
+         * 动画定义
+         * ==========================================================================
+         */
+        @keyframes pulse { 
+            0% { opacity: 0.4; transform: scale(1); } 
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 15px var(--success); } 
+            100% { opacity: 0.4; transform: scale(1); } 
+        }
+
+        /* 加载时的淡入 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .log-q { color: var(--text-sub); }
-        .log-r { font-weight: 700; color: var(--text-main); text-align: center; }
-        .log-res { font-weight: 800; text-align: right; font-size: 0.75rem; }
+        .card { animation: fadeIn 0.6s ease-out forwards; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; }
+        .card:nth-child(5) { animation-delay: 0.4s; }
 
-        .tag-hit { color: var(--success); text-shadow: 0 0 10px rgba(16,185,129,0.4); }
-        .tag-def { color: var(--accent); }
-        .tag-miss { color: var(--danger); opacity: 0.5; }
-
-        /* --- Analytics Grid --- */
-        .stat-hex-grid {
-            margin-top: 25px;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-        }
-        .hex-item {
-            background: rgba(255,255,255,0.02); border-radius: 12px;
-            padding: 12px 0; text-align: center;
-            border: 1px solid var(--border-glass);
-        }
-        .hex-t { font-size: 0.65rem; color: var(--text-sub); margin-bottom: 4px; display: block; }
-        .hex-v { font-family: var(--font-num); font-size: 1rem; font-weight: 800; color: var(--text-main); }
-        .h-high { color: var(--primary); }
-
-        /* Animation */
-        @keyframes pulse { 0% { opacity:0.4; } 50% { opacity:1; box-shadow:0 0 10px var(--success); } 100% { opacity:0.4; } }
     </style>
 </head>
 <body>
@@ -173,8 +502,11 @@
 <div class="container">
     
     <div class="header">
-        <div class="brand">GEMINI <span style="font-weight:400; opacity:0.5; margin-left:5px; font-size:0.8em">PRO</span></div>
-        <div class="status-badge"><div class="pulse-dot"></div> <span id="timer">SYNCING</span></div>
+        <div class="brand">Cz算法 <span>V3</span></div>
+        <div class="status-badge">
+            <div class="pulse-dot"></div> 
+            <span id="timer">SYSTEM READY</span>
+        </div>
     </div>
 
     <div class="card">
@@ -182,23 +514,25 @@
         <span class="card-label">TACTICAL CORE // 战术核心</span>
         
         <div class="tac-grid">
-            <div class="tac-box main" style="grid-column: span 2">
-                <span class="tac-title">PRIORITY TARGET (主攻)</span>
-                <div id="tMain" class="tac-val c-main">-- / --</div>
+            <div class="tac-box main">
+                <span class="tac-title">MAIN PRIORITY (主力)</span>
+                <div id="tMain" class="tac-val c-main">LOADING...</div>
             </div>
+            
             <div class="tac-box">
                 <span class="tac-title">DEFENSE (防守)</span>
                 <div id="tDef" class="tac-val c-def">--</div>
             </div>
+            
             <div class="tac-box kill">
-                <span class="tac-title">KILL (杀组)</span>
+                <span class="tac-title">KILL TARGET (杀组)</span>
                 <div id="tKill" class="tac-val c-kill">--</div>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <span class="card-label">ENERGY MATRIX // 能量矩阵</span>
+        <span class="card-label">ENERGY DISTRIBUTION [SUM=10]</span>
         
         <div class="hud-grid">
             <div class="hud-item">
@@ -220,304 +554,449 @@
         </div>
 
         <div class="combo-row">
-            <div class="mini-stat"><div class="ms-label" id="cN1">--</div><div class="ms-val c-main" id="cV1">--</div></div>
-            <div class="mini-stat"><div class="ms-label" id="cN2">--</div><div class="ms-val c-main" id="cV2">--</div></div>
-            <div class="mini-stat"><div class="ms-label" id="cN3">--</div><div class="ms-val c-def" id="cV3">--</div></div>
-            <div class="mini-stat"><div class="ms-label" id="cN4">--</div><div class="ms-val c-kill" id="cV4">--</div></div>
+            <div class="mini-stat">
+                <span class="ms-label" id="cN1">--</span>
+                <div class="ms-val c-main" id="cV1">--</div>
+            </div>
+            <div class="mini-stat">
+                <span class="ms-label" id="cN2">--</span>
+                <div class="ms-val c-main" id="cV2">--</div>
+            </div>
+            <div class="mini-stat">
+                <span class="ms-label" id="cN3">--</span>
+                <div class="ms-val c-def" id="cV3">--</div>
+            </div>
+            <div class="mini-stat">
+                <span class="ms-label" id="cN4">--</span>
+                <div class="ms-val c-kill" id="cV4">--</div>
+            </div>
         </div>
     </div>
 
     <div class="card">
-        <span class="card-label">TERMINAL LOG // 近10期记录</span>
-        <div id="histList"></div>
+        <span class="card-label">TERMINAL LOGS (LAST 10)</span>
+        <div id="histList">
+            </div>
     </div>
 
     <div class="card" style="padding-bottom: 30px;">
-        <span class="card-label">ANALYTICS // 全局数据</span>
+        <span class="card-label">GLOBAL ANALYTICS // 六维数据</span>
         <div class="stat-hex-grid">
-            <div class="hex-item"><span class="hex-t">综合胜率</span><span id="acc-total" class="hex-v h-high">--%</span></div>
-            <div class="hex-item"><span class="hex-t">主攻命中</span><span id="acc-main" class="hex-v h-high">--%</span></div>
-            <div class="hex-item"><span class="hex-t">杀组成功</span><span id="acc-kill" class="hex-v">--%</span></div>
-            <div class="hex-item"><span class="hex-t">大小准确</span><span id="acc-bs" class="hex-v">--%</span></div>
-            <div class="hex-item"><span class="hex-t">单双准确</span><span id="acc-oe" class="hex-v">--%</span></div>
-            <div class="hex-item"><span class="hex-t">防守命中</span><span id="acc-def" class="hex-v">--%</span></div>
+            <div class="hex-item">
+                <span class="hex-t">主力命中</span>
+                <span id="acc-main" class="hex-v c-main">--%</span>
+            </div>
+            <div class="hex-item">
+                <span class="hex-t">防守命中</span>
+                <span id="acc-def" class="hex-v c-def">--%</span>
+            </div>
+            <div class="hex-item">
+                <span class="hex-t">杀组成功</span>
+                <span id="acc-kill" class="hex-v" style="color:var(--danger)">--%</span>
+            </div>
+            <div class="hex-item">
+                <span class="hex-t">大小准确</span>
+                <span id="acc-bs" class="hex-v">--%</span>
+            </div>
+            <div class="hex-item">
+                <span class="hex-t">单双准确</span>
+                <span id="acc-oe" class="hex-v">--%</span>
+            </div>
+            <div class="hex-item">
+                <span class="hex-t">综合胜率</span>
+                <span id="acc-total" class="hex-v" style="color:#fff">--%</span>
+            </div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- 1. 指令集常量 ---
-    const C = {
-        SQRT_OSC: 28.5, SQRT_ADD: 7.5515, FISS_GOLD: 1.6180, SCAL_GOLD: 3.81966,
-        TRI_DIV: 42.75, REV_GOLD: 0.61803, WARN_DIV: 6.6666, EXT_DIV: 2.2222
-    };
-
-    const STATE = {
-        // 修正：限制改为 20，提高速度
-        api: "https://pc28.help/kj.json?limit=20",
-        history: [],
-        refresh: 15 // 刷新频率
-    };
-
-    const KERNEL = {
-        getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
+    /**
+     * ==========================================================================
+     * CZ ALGORITHM V3 CORE (JAVASCRIPT)
+     * ==========================================================================
+     * 配置参数与算法常量
+     */
+    const CONFIG = {
+        // API地址 (限制20条以保证速度)
+        API_URL: "https://pc28.help/kj.json?limit=20",
         
-        run: (n1, n2, n3, sum, prevItem, history) => {
-            // 修正：底分稍微给高一点点，并加入确定性微扰动，防止0和相等
-            // 扰动因子基于 (n1+n2+n3) 生成，保证同数据下结果一致，但不同数据间有差异
-            let seed = (n1 + n2 * 1.1 + n3 * 1.2) * 0.001; 
+        // 自动刷新间隔 (秒)
+        REFRESH_RATE: 15,
+        
+        // 算法常量 (Golden Ratios & Physics Constants)
+        CONSTANTS: {
+            SCAL_GOLD: 3.81966, // 标量黄金分割
+            SQRT_OSC: 28.5,     // 振荡平方根
+            SQRT_ADD: 7.5515,   // 附加因子
+            WARN_DIV: 6.6666    // 警报除数
+        }
+    };
+
+    /**
+     * 全局状态管理
+     */
+    const STATE = {
+        history: [],    // 历史数据存储
+        timerId: null,  // 计时器ID
+        lastUpdate: 0   // 最后更新时间
+    };
+
+    /**
+     * KERNEL: 运算核心
+     * 包含 V3 所有的权重计算、惩罚机制、归一化逻辑
+     */
+    const KERNEL = {
+        // 辅助函数：提取小数第一位
+        getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
+
+        /**
+         * 核心运行函数
+         * @param {Number} n1 - 第一位
+         * @param {Number} n2 - 第二位
+         * @param {Number} n3 - 第三位
+         * @param {Number} sum - 总和
+         * @param {Object} prev - 上一期数据 (用于趋势分析)
+         */
+        run: (n1, n2, n3, sum, prev) => {
+            const C = CONFIG.CONSTANTS;
             
-            // 基础底分不再是1，而是带有微小差异的底数
+            // 1. 初始化底分 (Base Weights)
+            // 引入微量扰动 (Seed) 基于当期数值，防止同分完全相等
+            // 范围极小 (0.0001)，不影响排序但解决 JS sort 不稳定性
+            let seed = (n1 + n2 * 1.1 + n3 * 1.2) * 0.0001;
+            
+            // 初始分设为 100，给与足够的操作空间，避免负数归一化问题
             let w = { 
-                b: 10 + seed, 
-                s: 10 - seed, 
-                o: 10 + (seed * 1.5), 
-                e: 10 - (seed * 1.5) 
+                b: 100 + seed, 
+                s: 100 - seed, 
+                o: 100 + seed, 
+                e: 100 - seed 
             }; 
 
-            let isDive = Math.abs(n1-n2) > 8;
-            
-            // --- Algo 19 (手术刀) ---
-            let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
+            // 跳水检测 (差值大于8视为剧烈波动)
+            let isDive = Math.abs(n1 - n2) > 8;
+
+            /* * -----------------------------------------------------------
+             * ALGORITHM PHASE 1: 手术刀 (SCALPEL) - 强攻击性
+             * -----------------------------------------------------------
+             */
+            let r19 = (Math.sqrt(n1**2 + n2**2 + n3**2)) / C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
             let i19 = Math.floor(r19);
             
-            if([7,8,9].includes(d19)) { w.b+=1000; }
-            else if([0,1,2].includes(d19)) { w.s+=1000; }
-            
-            if([3,4,5,6].includes(d19)) {
-                if((i19+n1+n2)%3===0) { w.o+=1000; }
-                else { w.e+=1000; }
+            // 逻辑：看好大，不仅加B，还要重罚S (Punishment)
+            // 这里的加减分幅度极大，确保杀组 (倒数第一) 极其稳固
+            if ([7, 8, 9].includes(d19)) { 
+                w.b += 500; 
+                w.s -= 300; 
+            } else if ([0, 1, 2].includes(d19)) { 
+                w.s += 500; 
+                w.b -= 300; 
             }
-
-            // --- Algo 16 (几何) ---
-            let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
-            let d16 = KERNEL.getD(r16);
-            let score16 = isDive ? 1000 : 50; 
             
-            if(d16>=5) w.b+=score16; else w.s+=score16;
-
-            // --- Algo 14 (裂变) ---
-            if(prevItem) {
-                let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
-                let d14 = KERNEL.getD(r14);
-                let w14 = 40; 
-                let prevBs = prevItem.sum >= 14 ? 'Big' : 'Small';
-                if(d14<=4) { 
-                    if(prevBs==='Big') w.b+=w14; else w.s+=w14;
-                } else {
-                    if(prevBs==='Big') w.s+=w14; else w.b+=w14;
+            // 单双同理
+            if ([3, 4, 5, 6].includes(d19)) {
+                if ((i19 + n1 + n2) % 3 === 0) { 
+                    w.o += 400; 
+                    w.e -= 200; 
+                } else { 
+                    w.e += 400; 
+                    w.o -= 200; 
                 }
             }
 
-            // --- 常规堆叠 ---
-            let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
-            (Math.floor(r18)%10%2!==0) ? w.o+=30 : w.e+=30;
+            /* * -----------------------------------------------------------
+             * ALGORITHM PHASE 2: 几何裂变 (GEOMETRY)
+             * -----------------------------------------------------------
+             */
+            let r16 = Math.sqrt(n1 * n2 * (1 + Math.abs(n1 - n2) / C.SQRT_OSC) + C.SQRT_ADD);
+            let d16 = KERNEL.getD(r16);
             
-            let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
-            (Math.floor(r2)%2===0) ? w.o+=30 : w.e+=30;
-
-            // --- Algo 10 (极值修正) ---
-            let r10 = 280/(n1+C.EXT_DIV);
-            let dec10 = r10 - Math.floor(r10);
-            if(dec10 < 0.333) {
-                if(w.b > w.s) w.b *= 0.6; else w.s *= 0.6;
+            // 跳水时增加权重
+            let sc16 = isDive ? 300 : 100;
+            
+            if (d16 >= 5) { 
+                w.b += sc16; 
+                w.s -= sc16 / 2; 
+            } else { 
+                w.s += sc16; 
+                w.b -= sc16 / 2; 
             }
 
-            // --- Algo 3 (警报) ---
-            let r3 = (n1+n2+n3)/C.WARN_DIV;
-            let d3 = KERNEL.getD(r3);
-            if(d3===0 || d3===6) {
-                // 警报时保持基础底分差异
-                w.b=10+seed; w.s=10-seed; w.o=10+seed; w.e=10-seed;
+            /* * -----------------------------------------------------------
+             * ALGORITHM PHASE 3: 趋势补偿 (TREND COMP)
+             * -----------------------------------------------------------
+             */
+            if (prev) {
+                // 如果上期结果是大，且本期预测又是大，进行反转补偿
+                // 防止连续追热死
+                let prevBs = prev.sum >= 14 ? 'Big' : 'Small';
+                if (prevBs === 'Big') w.s += 50; 
+                else w.b += 50;
             }
 
-            // --- 归一化处理 ---
-            let total = w.b+w.s+w.o+w.e;
-            // 防止total极小
-            if(total < 1) total = 1;
+            /* * -----------------------------------------------------------
+             * PHASE 4: 归一化 (NORMALIZATION SUM=10)
+             * -----------------------------------------------------------
+             */
+            
+            // 4.1 处理负数：如果任何一项被扣成负分，整体抬升
+            // 保证最小值为正数，以便计算比例
+            let minVal = Math.min(w.b, w.s, w.o, w.e);
+            if (minVal < 0) {
+                let lift = Math.abs(minVal) + 10; // 抬升至至少10分
+                w.b += lift; w.s += lift; w.o += lift; w.e += lift;
+            }
 
-            let nW = { 
-                b: (w.b/total)*10, s: (w.s/total)*10, 
-                o: (w.o/total)*10, e: (w.e/total)*10 
+            // 4.2 计算单项权重 (映射到总和 10.0)
+            let totalInd = w.b + w.s + w.o + w.e;
+            if (totalInd === 0) totalInd = 1; // 防止除零
+            
+            let nW = {
+                b: (w.b / totalInd) * 10,
+                s: (w.s / totalInd) * 10,
+                o: (w.o / totalInd) * 10,
+                e: (w.e / totalInd) * 10
             };
 
-            // 组合分计算
+            // 4.3 组合计算
             let combos = [
-                { name: "大单", s: w.b+w.o }, { name: "大双", s: w.b+w.e },
-                { name: "小单", s: w.s+w.o }, { name: "小双", s: w.s+w.e }
+                { name: "大单", s: w.b + w.o },
+                { name: "大双", s: w.b + w.e },
+                { name: "小单", s: w.s + w.o },
+                { name: "小双", s: w.s + w.e }
             ];
-            
-            // 排序前加入微量因子，彻底解决同分排序不稳定的问题
-            combos.forEach((c, idx) => {
-                c.s += (idx * 0.001); // 极其微小的偏移，确保sort稳定
-            });
 
-            combos.sort((a,b) => b.s - a.s);
-            
-            let cTotal = combos.reduce((a,b)=>a+b.s,0);
-            if(cTotal < 1) cTotal = 1;
-            let nCombos = combos.map(c => ({ name: c.name, s: (c.s/cTotal)*10 }));
+            // 4.4 排序 (权重高者在前，低者为杀组)
+            combos.sort((a, b) => b.s - a.s);
+
+            // 4.5 组合权重归一化 (映射到总和 10.0)
+            let totalComb = combos.reduce((a, b) => a + b.s, 0);
+            if (totalComb === 0) totalComb = 1;
+
+            let nCombos = combos.map(c => ({
+                name: c.name,
+                s: (c.s / totalComb) * 10
+            }));
 
             return { nW, nCombos };
         }
     };
 
-    // --- APP Logic ---
-    async function sync() {
-        document.getElementById('timer').innerText = "DATA SYNC";
-        document.querySelector('.pulse-dot').style.background = "#eab308"; // Loading Yellow
+    /**
+     * APP: 应用程序逻辑
+     */
+    const APP = {
+        // 初始化
+        init: () => {
+            APP.sync();
+        },
 
-        try {
-            const t = Date.now();
-            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(STATE.api + "&t=" + t)}`);
-            const json = await res.json();
-            const data = JSON.parse(json.contents).data;
-            if(data && data.length > 0) {
-                STATE.history = data.map(i => {
-                    const nums = i.opennum.split('+').map(Number);
-                    return { q: i.qihao, n1: nums[0], n2: nums[1], n3: nums[2], sum: parseInt(i.sum) };
-                });
-                render();
-                document.querySelector('.pulse-dot').style.background = "#10b981"; // Success Green
-            }
-        } catch(e) { 
-            console.error(e); 
-            document.querySelector('.pulse-dot').style.background = "#ef4444"; // Error Red
-        }
-        startTimer();
-    }
-
-    function render() {
-        const list = STATE.history;
-        if(list.length < 5) return;
-
-        const cur = list[0];
-        const prev = list[1]; 
-
-        // 1. 本期预测
-        const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, prev, list);
-        
-        // 2. 复仇逻辑
-        let revenge = localStorage.getItem('v7_pro_revenge');
-        if(revenge) {
-            let idx = res.nCombos.findIndex(c => c.name === revenge);
-            if(idx >= 2) {
-                // 如果复仇对象在后排，强行提至第一位，并交换权重显示
-                let tmp = res.nCombos[0];
-                res.nCombos[0] = res.nCombos[idx];
-                res.nCombos[idx] = tmp;
-            }
-        }
-
-        // 3. UI 更新
-        document.getElementById('tMain').innerHTML = `<span style="color:var(--primary)">${res.nCombos[0].name}</span> <span style="font-size:0.6em;opacity:0.5;margin:0 4px">/</span> <span style="color:rgba(255,255,255,0.7)">${res.nCombos[1].name}</span>`;
-        document.getElementById('tDef').innerText = res.nCombos[2].name;
-        document.getElementById('tKill').innerText = res.nCombos[3].name;
-
-        const draw = (id, val) => {
-            // 确保显示不为0.0，如果非常小但非0，显示 <0.1
-            let disp = val.toFixed(1);
-            if(val > 0 && disp === "0.0") disp = "0.1";
+        // 数据同步 (Fetch API)
+        sync: async () => {
+            const timerEl = document.getElementById('timer');
+            const dotEl = document.querySelector('.pulse-dot');
             
-            document.getElementById('b'+id).style.width = Math.min(100, val*10) + '%';
-            document.getElementById('v'+id).innerText = disp;
-        };
-        draw('Big', res.nW.b); draw('Sml', res.nW.s);
-        draw('Odd', res.nW.o); draw('Evn', res.nW.e);
+            timerEl.innerText = "SYNCING DATA...";
+            dotEl.style.background = "#eab308"; // 黄色加载状态
 
-        for(let i=0; i<4; i++) {
-            document.getElementById(`cN${i+1}`).innerText = res.nCombos[i].name;
-            document.getElementById(`cV${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
-        }
-
-        // 4. 历史复盘 (Terminal Style)
-        const hBox = document.getElementById('histList');
-        hBox.innerHTML = '';
-        
-        let lastHit = false;
-        let lastMain = '';
-
-        for(let i=0; i<10; i++) {
-            const t = list[i]; 
-            const p = list[i+1]; 
-            const pp = list[i+2]; 
-
-            const sim = KERNEL.run(p.n1, p.n2, p.n3, p.sum, pp, list);
-            const real = (t.sum>=14?'大':'小') + (t.sum%2!==0?'单':'双');
+            try {
+                const t = Date.now();
+                // 使用 AllOrigins 代理跨域
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(CONFIG.API_URL + "&t=" + t)}`);
+                const json = await res.json();
+                
+                if (!json.contents) throw new Error("No Content");
+                
+                const data = JSON.parse(json.contents).data;
+                
+                if (data && data.length > 0) {
+                    // 数据清洗与格式化
+                    STATE.history = data.map(i => {
+                        const nums = i.opennum.split('+').map(Number);
+                        return { 
+                            q: i.qihao, 
+                            n1: nums[0], 
+                            n2: nums[1], 
+                            n3: nums[2], 
+                            sum: parseInt(i.sum) 
+                        };
+                    });
+                    
+                    APP.render();
+                    dotEl.style.background = "#10b981"; // 绿色成功状态
+                }
+            } catch (e) {
+                console.error("Sync Error:", e);
+                timerEl.innerText = "CONN ERROR";
+                dotEl.style.background = "#ef4444"; // 红色错误状态
+            }
             
-            if(i===0) lastMain = sim.nCombos[0].name;
+            // 重置倒计时
+            APP.startTimer();
+        },
 
-            let tag = ''; let cls = '';
-            if(sim.nCombos[0].name === real || sim.nCombos[1].name === real) {
-                tag = 'HIT'; cls = 'tag-hit';
-                if(i===0) lastHit = true;
-            } 
-            else if(sim.nCombos[2].name === real) {
-                tag = 'DEF'; cls = 'tag-def';
-            } 
-            else {
-                tag = 'MISS'; cls = 'tag-miss';
+        // 渲染 UI
+        render: () => {
+            const list = STATE.history;
+            if (list.length < 5) return;
+
+            const cur = list[0]; // 最新一期（已开）
+            const prev = list[1]; // 上一期
+            
+            // 运行算法预测本期（用于验证）或下一期（实战用）
+            // 这里逻辑是：用 list[0] 的数据去预测下一期，但 UI 上我们展示预测分值
+            // 实战中：通常是用 list[0] 预测 未来的 Next
+            // 这里为了展示效果，我们展示基于当前数据的分析
+            const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, prev);
+
+            // 1. 更新战术核心面板
+            const cMain = res.nCombos[0];
+            const cSub = res.nCombos[1];
+            const cDef = res.nCombos[2];
+            const cKill = res.nCombos[3];
+
+            document.getElementById('tMain').innerHTML = `
+                <span style="color:var(--primary)">${cMain.name}</span>
+                <span style="font-size:0.5em; opacity:0.5; margin:0 8px">/</span>
+                <span style="color:rgba(255,255,255,0.7); font-size:0.8em">${cSub.name}</span>
+            `;
+            document.getElementById('tDef').innerText = cDef.name;
+            document.getElementById('tKill').innerText = cKill.name;
+
+            // 2. 更新能量条 (确保显示 Sum=10)
+            const drawBar = (id, val) => {
+                const elBar = document.getElementById('b' + id);
+                const elVal = document.getElementById('v' + id);
+                // 宽度最大100%，数值保留1位小数
+                elBar.style.width = Math.min(100, val * 10) + '%';
+                elVal.innerText = val.toFixed(1);
+            };
+            drawBar('Big', res.nW.b);
+            drawBar('Sml', res.nW.s);
+            drawBar('Odd', res.nW.o);
+            drawBar('Evn', res.nW.e);
+
+            // 3. 更新组合小数据
+            for(let i=0; i<4; i++) {
+                document.getElementById(`cN${i+1}`).innerText = res.nCombos[i].name;
+                document.getElementById(`cV${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
             }
 
-            hBox.innerHTML += `
-                <div class="log-row">
-                    <div class="log-q">${t.q.slice(-4)}</div>
-                    <div class="log-r">${real} <span style="opacity:0.4; font-size:0.8em">[${t.sum}]</span></div>
-                    <div class="log-res ${cls}">${tag}</div>
-                </div>`;
-        }
+            // 4. 历史回测与统计 (Stats Calculation)
+            APP.calcStats(list);
+        },
 
-        if(!lastHit) localStorage.setItem('v7_pro_revenge', lastMain);
-        else localStorage.removeItem('v7_pro_revenge');
-
-        // 5. 计算六维准确率
-        calculateStats(list);
-    }
-
-    function calculateStats(list) {
-        let stats = { bs: 0, oe: 0, main: 0, def: 0, kill: 0, total: 0 };
-
-        // 统计所有拉取到的数据（减去头部不需要预测的）
-        for(let i = 0; i < list.length - 2; i++) {
-            const target = list[i];
-            const input = list[i+1];
-            const prev = list[i+2];
-
-            const sim = KERNEL.run(input.n1, input.n2, input.n3, input.sum, prev, list);
+        // 统计逻辑
+        calcStats: (list) => {
+            const hBox = document.getElementById('histList');
+            hBox.innerHTML = ''; // 清空列表
             
-            const realBig = target.sum >= 14;
-            const realOdd = target.sum % 2 !== 0;
-            const realCombo = (realBig?'大':'小') + (realOdd?'单':'双');
+            let stats = { 
+                main: 0, def: 0, kill: 0, 
+                bs: 0, oe: 0, 
+                total: 0 
+            };
 
-            stats.total++;
-            if((sim.nW.b > sim.nW.s) === realBig) stats.bs++;
-            if((sim.nW.o > sim.nW.e) === realOdd) stats.oe++;
-            if(sim.nCombos[0].name === realCombo || sim.nCombos[1].name === realCombo) stats.main++;
-            if(sim.nCombos[2].name === realCombo) stats.def++;
-            if(sim.nCombos[3].name !== realCombo) stats.kill++;
+            // 遍历历史 (跳过前2个，因为需要前后文)
+            for (let i = 0; i < 10; i++) {
+                // i 是结果期，i+1 是输入期，i+2 是辅助期
+                if (i + 2 >= list.length) break;
+
+                const target = list[i];
+                const input = list[i+1];
+                const prev = list[i+2];
+
+                // 模拟运算
+                const sim = KERNEL.run(input.n1, input.n2, input.n3, input.sum, prev);
+                
+                // 真实结果
+                const realBig = target.sum >= 14;
+                const realOdd = target.sum % 2 !== 0;
+                const realCombo = (realBig ? '大' : '小') + (realOdd ? '单' : '双');
+
+                // 统计累加
+                stats.total++;
+                
+                // 判定逻辑
+                const isMain = (sim.nCombos[0].name === realCombo || sim.nCombos[1].name === realCombo);
+                const isDef = (sim.nCombos[2].name === realCombo);
+                const isKillFail = (sim.nCombos[3].name === realCombo); // 杀组等于结果 -> 失败
+                
+                if (isMain) stats.main++;
+                if (isDef) stats.def++;
+                if (!isKillFail) stats.kill++; // 杀组不等于结果 -> 成功
+
+                // 单项准确率 (比较权重大小)
+                if ((sim.nW.b > sim.nW.s) === realBig) stats.bs++;
+                if ((sim.nW.o > sim.nW.e) === realOdd) stats.oe++;
+
+                // 渲染列表行
+                let tagText = '';
+                let tagClass = '';
+
+                if (isMain) {
+                    tagText = '主力命中';
+                    tagClass = 'tag-hit';
+                } else if (isDef) {
+                    tagText = '防守';
+                    tagClass = 'tag-def';
+                } else {
+                    tagText = '杀组挂'; // 杀组等于结果，也就是没防住
+                    tagClass = 'tag-miss';
+                }
+
+                const rowHtml = `
+                    <div class="log-row">
+                        <div class="log-q">${target.q.slice(-4)}期</div>
+                        <div class="log-r">
+                            ${realCombo} 
+                            <span class="log-sum">[${target.sum}]</span>
+                        </div>
+                        <div class="${tagClass}">${tagText}</div>
+                    </div>
+                `;
+                hBox.innerHTML += rowHtml;
+            }
+
+            // 更新六维面板
+            const toPct = (v) => Math.round((v / stats.total) * 100) + "%";
+            
+            document.getElementById('acc-main').innerText = toPct(stats.main);
+            document.getElementById('acc-def').innerText = toPct(stats.def);
+            document.getElementById('acc-kill').innerText = toPct(stats.kill);
+            
+            document.getElementById('acc-bs').innerText = toPct(stats.bs);
+            document.getElementById('acc-oe').innerText = toPct(stats.oe);
+            
+            // 综合胜率 = (主力+防守)/总数
+            document.getElementById('acc-total').innerText = toPct(stats.main + stats.def);
+        },
+
+        // 倒计时逻辑
+        startTimer: () => {
+            if (STATE.timerId) clearInterval(STATE.timerId);
+            
+            let t = CONFIG.REFRESH_RATE;
+            const timerEl = document.getElementById('timer');
+            
+            STATE.timerId = setInterval(() => {
+                t--;
+                if (t <= 0) {
+                    clearInterval(STATE.timerId);
+                    APP.sync(); // 触发更新
+                } else {
+                    timerEl.innerText = `NEXT: ${t}s`;
+                }
+            }, 1000);
         }
+    };
 
-        const calc = (v) => Math.round((v / stats.total) * 100) + "%";
-        document.getElementById('acc-bs').innerText = calc(stats.bs);
-        document.getElementById('acc-oe').innerText = calc(stats.oe);
-        document.getElementById('acc-main').innerText = calc(stats.main);
-        document.getElementById('acc-def').innerText = calc(stats.def);
-        document.getElementById('acc-kill').innerText = calc(stats.kill);
-        document.getElementById('acc-total').innerText = calc(stats.main + stats.def);
-    }
+    // 启动应用
+    window.onload = APP.init;
 
-    function startTimer() {
-        let t = STATE.refresh;
-        const tmr = setInterval(() => {
-            t--;
-            document.getElementById('timer').innerText = `NEXT ${t}s`;
-            if(t<=0) { clearInterval(tmr); sync(); }
-        }, 1000);
-    }
-
-    window.onload = sync;
 </script>
 </body>
 </html>
