@@ -3,149 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cz算法 V3 [ULTIMATE]</title>
+    <title>Cz算法 V4 [FULL]</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* * ==========================================================================
-         * GLOBAL STYLES
-         * ==========================================================================
-         */
         :root {
             --bg-deep: #050505;
-            --card-bg: rgba(20, 20, 23, 0.85); /* 稍微加深一点背景，提升对比度 */
+            --card-bg: rgba(20, 20, 23, 0.85);
             --card-border: rgba(255, 255, 255, 0.1);
-            
-            --primary: #3b82f6;   /* Blue */
-            --accent: #f59e0b;    /* Yellow */
-            --danger: #ef4444;    /* Red */
-            --success: #10b981;   /* Green */
-            --purple: #8b5cf6;    /* Purple */
-            --cyan: #06b6d4;      /* Cyan */
-            
-            --text-main: #ffffff;
-            --text-sub: #94a3b8;
-
-            /* 字体栈升级：优先使用 Rajdhani，没有则用系统工业字体 */
-            --font-ui: 'Rajdhani', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            --font-num: 'Roboto Mono', 'Consolas', 'Monaco', monospace;
+            --primary: #3b82f6; --accent: #f59e0b; --danger: #ef4444; --success: #10b981;
+            --purple: #8b5cf6; --cyan: #06b6d4;
+            --text-main: #ffffff; --text-sub: #94a3b8;
+            --font-ui: 'Rajdhani', sans-serif; --font-num: 'Roboto Mono', monospace;
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-
         body {
             background-color: var(--bg-deep);
-            /* 更冷峻的背景光 */
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                linear-gradient(0deg, #000000 0%, rgba(20,20,23,0) 100%);
-            color: var(--text-main);
-            font-family: var(--font-ui);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 24px 16px 60px 16px;
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), linear-gradient(0deg, #000000 0%, rgba(20,20,23,0) 100%);
+            color: var(--text-main); font-family: var(--font-ui);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 60px 16px;
         }
-
         .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
-
-        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .brand { 
-            font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; color: #fff;
-            text-transform: uppercase; display: flex; align-items: center; gap: 10px;
-        }
+        .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; color: #fff; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
         .brand span { color: var(--primary); font-weight: 800; }
-        
-        .status-badge { 
-            font-family: var(--font-num); font-size: 0.7rem; font-weight: 700;
-            padding: 4px 10px; border-radius: 4px;
-            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success); display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px;
-        }
+        .status-badge { font-family: var(--font-num); font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--success); display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
         .pulse-dot { width: 6px; height: 6px; background: var(--success); box-shadow: 0 0 8px var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-
-        /* CARD STYLE */
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px; /*稍微减小圆角，更硬朗*/
-            padding: 20px;
-            position: relative;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5);
-        }
-        .card-label {
-            font-size: 0.65rem; font-weight: 700; color: var(--text-sub);
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; display: block;
-            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
-        }
-
-        /* TACTICAL GRID */
+        .card { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); }
+        .card-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
         .tac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .tac-box {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px; padding: 16px 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .tac-box.main { 
-            grid-column: span 2; 
-            background: linear-gradient(135deg, rgba(59,130,246,0.1), transparent);
-            border-color: rgba(59,130,246,0.3);
-        }
-        .tac-box.kill { 
-            background: linear-gradient(135deg, rgba(239,68,68,0.1), transparent);
-            border-color: rgba(239,68,68,0.3);
-        }
-        
+        .tac-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tac-box.main { grid-column: span 2; background: linear-gradient(135deg, rgba(59,130,246,0.1), transparent); border-color: rgba(59,130,246,0.3); }
+        .tac-box.kill { background: linear-gradient(135deg, rgba(239,68,68,0.1), transparent); border-color: rgba(239,68,68,0.3); }
         .tac-title { font-size: 0.65rem; color: var(--text-sub); margin-bottom: 4px; letter-spacing: 1px; font-weight: 600; }
         .tac-val { font-family: var(--font-ui); font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
-
         .c-main { color: var(--primary); text-shadow: 0 0 15px rgba(59,130,246,0.4); }
         .c-def { color: var(--accent); }
         .c-kill { color: var(--danger); text-decoration: line-through; opacity: 0.7; }
-
-        /* ENERGY BARS */
         .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 16px; margin-top: 20px; }
         .hud-item { display: flex; flex-direction: column; gap: 6px; }
         .hud-head { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--text-sub); }
         .hud-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
         .hud-bar { height: 100%; border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 8px currentColor; }
-
-        /* MINI STATS */
         .combo-row { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); }
         .mini-stat { text-align: center; flex: 1; border-right: 1px solid rgba(255,255,255,0.05); }
         .mini-stat:last-child { border-right: none; }
         .ms-label { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; }
         .ms-val { font-family: var(--font-num); font-weight: 700; font-size: 0.9rem; }
-
-        /* LOGS */
         #histList { display: flex; flex-direction: column; gap: 8px; }
-        .log-row {
-            display: grid; grid-template-columns: 60px 1fr 60px; align-items: center;
-            padding: 10px 14px; border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-            font-family: var(--font-num); font-size: 0.8rem;
-            border-left: 2px solid transparent;
-        }
+        .log-row { display: grid; grid-template-columns: 60px 1fr 60px; align-items: center; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.02); font-family: var(--font-num); font-size: 0.8rem; border-left: 2px solid transparent; }
         .log-row:first-child { background: rgba(59,130,246,0.08); border-left-color: var(--primary); }
-        
         .log-q { color: var(--text-sub); opacity: 0.8; }
         .log-r { text-align: center; font-weight: 700; color: #fff; }
-        .log-res { text-align: right; font-weight: 700; letter-spacing: 0.5px; }
-
         .tag-hit { color: var(--success); text-shadow: 0 0 8px rgba(16,185,129,0.3); }
         .tag-def { color: var(--accent); }
         .tag-miss { color: var(--danger); opacity: 0.8; }
-
-        /* ANALYTICS */
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .stat-box { 
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-            padding: 12px 0; border-radius: 8px; text-align: center; 
-        }
+        .stat-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 12px 0; border-radius: 8px; text-align: center; }
         .stat-t { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; text-transform: uppercase; }
         .stat-v { font-family: var(--font-num); font-size: 1rem; font-weight: 700; color: #fff; }
-
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
@@ -153,7 +69,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand">CZ算法 <span>V3</span></div>
+        <div class="brand">CZ算法 <span>V4(FULL)</span></div>
         <div class="status-badge"><div class="pulse-dot"></div> <span id="timer">SYNC</span></div>
     </div>
 
@@ -225,7 +141,17 @@
     const CONFIG = {
         API: "https://pc28.help/kj.json?limit=20",
         REFRESH: 15,
-        C: { SCAL_GOLD: 3.81966, SQRT_OSC: 28.5, SQRT_ADD: 7.5515 }
+        // 七大公式所需的完整常量集
+        C: { 
+            SCAL_GOLD: 3.81966, 
+            SQRT_OSC: 28.5, 
+            SQRT_ADD: 7.5515,
+            FISS_GOLD: 1.6180, // 裂变常量
+            TRI_DIV: 42.75,    // 三角除数
+            REV_GOLD: 0.61803, // 反向黄金分割
+            WARN_DIV: 6.6666,  // 警报除数
+            EXT_DIV: 2.2222    // 极值除数
+        }
     };
 
     const STATE = { history: [], timer: null };
@@ -233,45 +159,72 @@
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
         
-        run: (n1, n2, n3, sum, prev) => {
-            // 微量扰动，基于当期数值，保证不完全相等
+        run: (n1, n2, n3, sum, prev, history) => {
+            const C = CONFIG.C;
             let seed = (n1 * 1.01 + n2 * 1.02 + n3 * 1.03) * 0.0001;
-            // 基础分
             let w = { b: 100+seed, s: 100-seed, o: 100+seed, e: 100-seed };
             
-            // --- 强制二选一逻辑 ---
-            const C = CONFIG.C;
+            // --- 1. [核心] Algo 19 手术刀 (强力惩罚) ---
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
-
-            // 1. 大小判定 (强制拉开差距)
+            // 强制二选一，加大分差
             if (d19 >= 5) { w.b += 300; w.s -= 150; } 
             else { w.s += 300; w.b -= 150; }
-
-            // 2. 单双判定 (强制拉开差距)
+            
             let i19 = Math.floor(r19);
             if ((i19 + d19) % 2 !== 0) { w.o += 250; w.e -= 100; } 
             else { w.e += 250; w.o -= 100; }
 
-            // 3. 几何补正 (跳水检测)
+            // --- 2. [核心] Algo 16 几何裂变 ---
             let isDive = Math.abs(n1-n2) > 8;
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
-            let sc16 = isDive ? 400 : 200; // 跳水时权重翻倍
-            
+            let sc16 = isDive ? 400 : 200; 
             if(d16 >= 5) { w.b += sc16; w.s -= sc16/2; }
             else { w.s += sc16; w.b -= sc16/2; }
 
-            // 4. 趋势补偿 (Trend)
+            // --- 3. [复活] Algo 14 裂变追踪 (V1原版逻辑) ---
             if(prev) {
+                let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
+                let d14 = KERNEL.getD(r14);
+                let w14 = 80; // 权重适中
                 let prevBs = prev.sum >= 14 ? 'Big' : 'Small';
-                // 顺势加强：如果上期是大，给大加一点，给小减一点
-                if(prevBs === 'Big') { w.b += 50; w.s -= 20; }
-                else { w.s += 50; w.b -= 20; }
+                if(d14<=4) { 
+                    if(prevBs==='Big') w.b+=w14; else w.s+=w14;
+                } else {
+                    if(prevBs==='Big') w.s+=w14; else w.b+=w14;
+                }
+            }
+
+            // --- 4. [复活] Algo 18 三角堆叠 (V1原版逻辑) ---
+            // 增加基础底蕴，防止波动过大
+            let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
+            (Math.floor(r18)%10%2!==0) ? w.o+=60 : w.e+=60;
+
+            // --- 5. [复活] Algo 2 黄金反转 (V1原版逻辑) ---
+            let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
+            (Math.floor(r2)%2===0) ? w.o+=50 : w.e+=50;
+
+            // --- 6. [复活] Algo 10 极值修正 (V1原版逻辑) ---
+            // 如果出现极值，削减当前领先者的权重，防止盲目追热
+            let r10 = 280/(n1+C.EXT_DIV);
+            let dec10 = r10 - Math.floor(r10);
+            if(dec10 < 0.333) {
+                // 削减当前最大项 20%
+                if(w.b > w.s) w.b *= 0.8; else w.s *= 0.8;
+            }
+
+            // --- 7. [复活] Algo 3 警报熔断 (V1原版逻辑) ---
+            // 遇到特定数字结构，重置为平均分 (保留微小扰动)
+            let r3 = (n1+n2+n3)/C.WARN_DIV;
+            let d3 = KERNEL.getD(r3);
+            if(d3===0 || d3===6) {
+                // 触发熔断，重置回基础分
+                w.b=100+seed; w.s=100-seed; w.o=100+seed; w.e=100-seed;
             }
 
             // --- 归一化 (Sum=10) ---
-            // 保底处理，防止负数
+            // 确保无负数
             let minV = Math.min(w.b, w.s, w.o, w.e);
             if(minV < 10) {
                 let lift = Math.abs(minV) + 15;
@@ -295,7 +248,7 @@
                 { name: "小双", s: w.s + w.e }
             ];
 
-            // 排序 (微量因子防止同分)
+            // 排序 (微量因子)
             combos.forEach((c,i) => c.s += i*0.001);
             combos.sort((a,b) => b.s - a.s);
 
@@ -343,7 +296,7 @@
             if(list.length < 5) return;
             
             const cur = list[0];
-            const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, list[1]);
+            const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, list[1], list);
 
             // UI - Core
             document.getElementById('tMain').innerHTML = `<span style="color:var(--primary)">${res.nCombos[0].name}</span> <span style="font-size:0.6em;opacity:0.5">/</span> <span style="color:rgba(255,255,255,0.7);font-size:0.8em">${res.nCombos[1].name}</span>`;
@@ -376,7 +329,7 @@
                 if(i+2 >= list.length) break;
                 const t = list[i]; // Target
                 const inp = list[i+1]; // Input
-                const sim = KERNEL.run(inp.n1, inp.n2, inp.n3, inp.sum, list[i+2]);
+                const sim = KERNEL.run(inp.n1, inp.n2, inp.n3, inp.sum, list[i+2], list);
                 
                 const rBig = t.sum >= 14;
                 const rOdd = t.sum % 2 !== 0;
@@ -394,7 +347,7 @@
                 if((sim.nW.b > sim.nW.s) === rBig) s.bs++;
                 if((sim.nW.o > sim.nW.e) === rOdd) s.oe++;
 
-                // Tag Logic: HIT / DEF / MISS
+                // Tag Logic
                 let tag = '', cls = '';
                 if(isMain) { tag = 'HIT'; cls = 'tag-hit'; }
                 else if(isDef) { tag = 'DEF'; cls = 'tag-def'; }
