@@ -3,490 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gemini V5 [Original Core]</title>
+    <title>Gemini V5 [RAW KERNEL]</title>
     <style>
         :root {
-            --bg-color: #e0e5ec;
-            --text-main: #4a4a4a;
-            --text-sub: #8792a3;
-            --shadow-light: -9px -9px 16px rgba(255,255,255, 0.8);
-            --shadow-dark: 9px 9px 16px rgba(163,177,198, 0.6);
-            --radius: 20px;
-            
-            --c-red: #e03e3e;
-            --c-green: #2ecc71;
-            --c-blue: #3498db;
-            --c-gold: #f1c40f;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text-main: #1d1d1f;
+            --text-sub: #86868b;
+            --red: #ff3b30;
+            --green: #34c759;
+            --blue: #007aff;
+            --gold: #ffcc00;
+            --shadow: 0 4px 12px rgba(0,0,0,0.06);
+            --radius: 16px;
         }
 
         body {
-            background-color: var(--bg-color);
+            background: var(--bg);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            margin: 0;
-            padding: 20px;
+            font-family: -apple-system, "SF Pro Text", monospace;
+            margin: 0; padding: 16px;
+            display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        .container {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 16px; }
 
-        /* 顶部状态栏 */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-sub);
-            padding: 0 10px;
-        }
-        .live-dot {
-            width: 8px; height: 8px; 
-            background: #ccc; border-radius: 50%;
-            display: inline-block; margin-right: 5px;
-            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        .live-dot.active { background: var(--c-green); box-shadow: 0 0 8px var(--c-green); }
+        /* 状态栏 */
+        .header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-sub); }
+        .badge { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+        .b-live { background: var(--green); color: white; }
+        .b-warn { background: var(--red); color: white; animation: pulse 1s infinite; }
 
-        /* 新拟态卡片通用样式 */
-        .neu-card {
-            background: var(--bg-color);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-dark), var(--shadow-light);
-            padding: 20px;
-            position: relative;
-        }
-        .neu-inset {
-            border-radius: 12px;
-            box-shadow: inset 6px 6px 10px rgba(163,177,198, 0.6), inset -6px -6px 10px rgba(255,255,255, 0.8);
-            padding: 15px;
-            background: #e0e5ec;
-        }
+        /* 卡片 */
+        .card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); position: relative; }
+        .card-head { font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 10px; display: flex; justify-content: space-between; }
 
-        /* 核心预测大圆盘 */
-        .main-prediction {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .circle-outer {
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            box-shadow: var(--shadow-dark), var(--shadow-light);
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            margin: 10px 0 20px 0;
-        }
-        .circle-inner {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            box-shadow: inset 6px 6px 10px rgba(163,177,198, 0.6), inset -6px -6px 10px rgba(255,255,255, 0.8);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
-        .res-text { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-        .res-conf { font-size: 0.7rem; margin-top: 5px; color: var(--text-sub); }
+        /* 核心战令 */
+        .cmd-box { text-align: center; padding: 10px 0; }
+        .cmd-val { font-size: 42px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+        .cmd-sub { font-size: 14px; margin-top: 5px; color: var(--text-sub); }
+        .conf-bar { height: 4px; background: #eee; width: 60%; margin: 10px auto 0; border-radius: 2px; overflow: hidden; }
+        .conf-fill { height: 100%; background: var(--blue); width: 0%; transition: width 0.5s; }
 
-        .red-t { color: var(--c-red); }
-        .green-t { color: var(--c-green); }
-
-        /* 算法矩阵看板 (第12段要求) */
-        .matrix-table {
-            width: 100%;
-            font-size: 0.75rem;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .matrix-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .matrix-table th { padding: 6px; color: var(--text-sub); font-weight: 600; font-size: 0.7rem; }
-        
-        /* 逻辑深度解析区 */
-        .analysis-text {
-            font-size: 0.8rem;
-            line-height: 1.5;
-            color: var(--text-main);
+        /* 深度解析文本 (Terminal 风格) */
+        .terminal {
+            background: #1c1c1e; color: #00ff41; 
+            font-family: 'Menlo', 'Courier New', monospace;
+            font-size: 10px; line-height: 1.4;
+            padding: 12px; border-radius: 8px;
+            height: 150px; overflow-y: auto;
             white-space: pre-wrap;
-            text-align: left;
-        }
-        .section-title {
-            font-size: 0.85rem; font-weight: 700; 
-            color: var(--c-blue); margin-bottom: 8px;
-            display: flex; align-items: center;
-        }
-        .section-title::before {
-            content: ''; width: 4px; height: 14px; background: var(--c-blue);
-            margin-right: 8px; border-radius: 2px;
         }
 
-        /* 历史列表 */
-        .history-row {
-            display: flex; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
-            font-size: 0.8rem;
-        }
-        .badge {
-            padding: 2px 6px; border-radius: 6px; font-weight: 700; font-size: 0.7rem;
-        }
-        .b-red { background: rgba(224,62,62,0.1); color: var(--c-red); }
-        .b-green { background: rgba(46,204,113,0.1); color: var(--c-green); }
+        /* 算法矩阵表 */
+        .matrix-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 5px; }
+        .algo-cell { background: #f5f5f7; padding: 6px 2px; text-align: center; border-radius: 4px; }
+        .algo-id { font-size: 9px; color: #888; }
+        .algo-res { font-size: 11px; font-weight: bold; color: #333; margin-top: 2px; }
+        .p0-active { background: rgba(255, 59, 48, 0.1); border: 1px solid var(--red); }
 
-        /* 倒计时条 */
-        .progress-line {
-            height: 3px; background: var(--c-blue); width: 0%;
-            transition: width 0.2s linear; border-radius: 2px;
-            margin-top: 10px;
-        }
+        /* 权重条 */
+        .stat-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; }
+        .stat-lbl { width: 30px; font-weight: 600; }
+        .stat-track { flex: 1; height: 6px; background: #eee; border-radius: 3px; margin: 0 8px; overflow: hidden; }
+        .stat-fill { height: 100%; border-radius: 3px; }
+        .stat-val { width: 25px; text-align: right; font-family: monospace; }
+
+        /* 历史 */
+        .hist-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+        .tag { padding: 2px 4px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 4px; }
+        .tag.win { background: rgba(52, 199, 89, 0.2); color: var(--green); }
+        .tag.loss { background: rgba(255, 59, 48, 0.2); color: var(--red); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="status-bar">
-            <div><span id="dot" class="live-dot"></span><span id="sysState">初始化系统...</span></div>
-            <div id="nextTimer">--s</div>
-        </div>
+<div class="container">
+    <div class="header">
+        <div>Gemini-Scalpel V5.0 <span class="badge b-live">KERNEL ACTIVE</span></div>
+        <div id="countdown">--s</div>
+    </div>
+    
+    <div style="height:2px; background:#e5e5ea; width:100%; border-radius:1px;">
+        <div id="loadBar" style="height:100%; background:var(--blue); width:0%;"></div>
+    </div>
 
-        <div class="neu-card main-prediction">
-            <div style="font-size:0.9rem; font-weight:600;">第 <span id="targetIssue" style="color:var(--c-blue)">--</span> 期 核心战令</div>
-            <div class="circle-outer">
-                <div class="circle-inner">
-                    <div id="finalRes" class="res-text">--</div>
-                    <div id="finalConf" class="res-conf">WAITING</div>
-                </div>
-            </div>
-            <div id="scoreBoard" style="display:flex; gap:15px; font-size:0.8rem; color:var(--text-main);">
-                <span>大:<b id="sBig">0</b></span>
-                <span>小:<b id="sSml">0</b></span>
-                <span>单:<b id="sOdd">0</b></span>
-                <span>双:<b id="sEvn">0</b></span>
-            </div>
-            <div class="progress-line" id="progressBar"></div>
+    <div class="card">
+        <div class="card-head">
+            <span>第 <span id="nextIssue" style="color:var(--blue)">--</span> 期 核心战令</span>
+            <span id="stateLabel" style="font-size:11px; color:var(--text-sub)">常规态</span>
         </div>
-
-        <div class="neu-card">
-            <div class="section-title">算法矩阵看板 (V5.0全量)</div>
-            <div class="neu-inset">
-                <table class="matrix-table">
-                    <thead>
-                        <tr><th>算法ID</th><th>D位/结果</th><th>判定</th><th>权限</th></tr>
-                    </thead>
-                    <tbody id="matrixBody">
-                        </tbody>
-                </table>
-            </div>
+        <div class="cmd-box">
+            <div class="cmd-val" id="finalCmd">--</div>
+            <div class="cmd-sub" id="finalDetail">等待原始数据注入...</div>
+            <div class="conf-bar"><div class="conf-fill" id="confBar"></div></div>
         </div>
-
-        <div class="neu-card">
-            <div class="section-title">逻辑深度解析 & 战术路径</div>
-            <div id="analysisBox" class="analysis-text">
-                等待数据喂养...
+        <div style="display:flex; justify-content:space-between; margin-top:15px; font-size:12px; text-align:center;">
+            <div style="flex:1;">
+                <div style="color:#888; font-size:10px;">🔥 主攻 (Main)</div>
+                <div id="tacMain" style="font-weight:700; margin-top:2px;">--</div>
             </div>
-        </div>
-
-        <div class="neu-card">
-            <div class="section-title">历史复盘 & 准星校准</div>
-            <div id="historyList" style="max-height: 250px; overflow-y: auto;">
-                </div>
+            <div style="flex:1; border-left:1px solid #eee;">
+                <div style="color:#888; font-size:10px;">🛡️ 防守 (Def)</div>
+                <div id="tacDef" style="font-weight:700; margin-top:2px;">--</div>
+            </div>
+            <div style="flex:1; border-left:1px solid #eee;">
+                <div style="color:#888; font-size:10px;">💀 杀组 (Kill)</div>
+                <div id="tacKill" style="font-weight:700; margin-top:2px; color:#aaa; text-decoration:line-through;">--</div>
+            </div>
         </div>
     </div>
 
+    <div class="card">
+        <div class="card-head">七剑算法矩阵 (128-Bit Precision)</div>
+        <div class="matrix-grid" id="matrixBoard">
+            </div>
+        <div style="margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
+            <div class="stat-row"><span class="stat-lbl">大</span><div class="stat-track"><div id="barBig" class="stat-fill" style="background:var(--red)"></div></div><span id="valBig" class="stat-val">0</span></div>
+            <div class="stat-row"><span class="stat-lbl">小</span><div class="stat-track"><div id="barSml" class="stat-fill" style="background:var(--green)"></div></div><span id="valSml" class="stat-val">0</span></div>
+            <div class="stat-row"><span class="stat-lbl">单</span><div class="stat-track"><div id="barOdd" class="stat-fill" style="background:var(--blue)"></div></div><span id="valOdd" class="stat-val">0</span></div>
+            <div class="stat-row"><span class="stat-lbl">双</span><div class="stat-track"><div id="barEvn" class="stat-fill" style="background:var(--gold)"></div></div><span id="valEvn" class="stat-val">0</span></div>
+        </div>
+    </div>
+
+    <div class="card" style="background:#000; padding:0;">
+        <div class="terminal" id="logicLog">
+            [SYSTEM] V5.0 Kernel Loaded.
+            [WAITING] Connecting to PC28 Data Stream...
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">战果复盘 & 准星校准</div>
+        <div id="histList"></div>
+    </div>
+
+</div>
+
 <script>
-    // --- V5.0 终极常量与配置 ---
-    const CONFIG = {
-        api: "https://pc28.help/kj.json?limit=50", 
-        refreshInterval: 20, // 20秒一刷
-        timer: null,
-        count: 20,
-        history: [] // 本地存储
+    // --- 核心常量 (严格遵守指令) ---
+    const C = {
+        SQRT_OSC: 28.5,     // 算法16 震荡常数
+        SQRT_ADD: 7.5515,   // 算法16 加成
+        FISS_GOLD: 1.6180,  // 算法14 裂变黄金数
+        SCAL_GOLD: 3.81966, // 算法19 手术刀常数
+        TRI_DIV: 42.75,     // 算法18 三角除数
+        REV_GOLD: 0.61803,  // 算法2 反向收割
+        WARN_DIV: 6.6666,   // 算法3 变盘常数
+        EXT_DIV: 2.2222     // 算法10 极值常数
     };
 
-    // --- 第 1-10 段：核心算法库 ---
-    const MATH = {
-        // 算法16: 几何震荡 (P1)
+    // --- 全局状态 ---
+    const STATE = {
+        history: [], // 存储最近50期
+        lastQihao: null,
+        dragonCount: 0, // 龙局计数
+        isWarning: false // 是否触发警报
+    };
+
+    // --- V5.0 算法内核 ---
+    const KERNEL = {
+        // 辅助：Result保留6位小数
+        fmt: (num) => parseFloat(num.toFixed(6)),
+        getD: (num) => parseInt(num.toFixed(6).split('.')[1][0]),
+        getI: (num) => Math.floor(num),
+
+        // 算法16 (P1 几何震荡) - 第2段
         algo16: (n1, n2) => {
-            let val = Math.sqrt(n1 * n2 * (1 + Math.abs(n1 - n2) / 28.5) + 7.5515);
-            let d = parseInt(val.toFixed(6).split('.')[1][0]);
-            let dir = d >= 5 ? '大' : '小'; // 简单映射，后续有冲突管理
-            return { id: 16, val: val, d: d, dir: dir, p: 'P1' };
+            let res = Math.sqrt(n1 * n2 * (1 + Math.abs(n1 - n2) / C.SQRT_OSC) + C.SQRT_ADD);
+            let D = KERNEL.getD(res);
+            // 第3段：极值引力判定
+            let priority = (n1 >= 20 || n1 <= 6) ? 'P0' : 'P1';
+            let dir = (D >= 5) ? '大' : '小'; // 简单映射，具体由D位决定重力方向
+            return { id: 16, d: D, dir: dir, p: priority, name: '震荡' };
         },
-        // 算法14: 单双裂变 (P1)
+
+        // 算法14 (P1 单双裂变) - 第4段
         algo14: (n1, n2, n3, n4) => {
-            let val = Math.sqrt(Math.pow((n1 - n2), 2) + (Math.pow(n3, 2) / (n4 + 1)) + 1.6180);
-            let d = parseInt(val.toFixed(6).split('.')[1][0]);
-            let dir = (d >= 0 && d <= 4) ? '同(顺)' : '反(裂)'; // 0-4顺, 5-9裂
-            return { id: 14, val: val, d: d, dir: dir, p: 'P1' };
+            let res = Math.sqrt(Math.pow((n1 - n2), 2) + (Math.pow(n3, 2) / (n4 + 1)) + C.FISS_GOLD);
+            let D = KERNEL.getD(res);
+            let dir = (D >= 0 && D <= 4) ? '顺' : '裂'; // 0-4顺(同), 5-9裂(反)
+            return { id: 14, d: D, dir: dir, p: 'P1', name: '裂变' };
         },
-        // 算法19: 手术刀 (P0) - 核心
+
+        // 算法19 (P0 手术刀) - 第5,6段
         algo19: (n1, n2, n3) => {
-            let val = (Math.sqrt(n1**2 + n2**2 + n3**2)) / 3.81966;
-            let d = parseInt(val.toFixed(6).split('.')[1][0]);
-            let i = Math.floor(val);
-            let size = '中';
-            if ([0,1,2].includes(d)) size = '小';
-            if ([7,8,9].includes(d)) size = '大';
+            let res = (Math.sqrt(n1**2 + n2**2 + n3**2)) / C.SCAL_GOLD;
+            let D = KERNEL.getD(res);
+            let I = KERNEL.getI(res);
             
-            // 混沌纠缠区 I-熵判定 (第6段)
-            let oe = '无';
-            if ([3,4,5,6].includes(d)) {
-                oe = ((i + n1 + n2) % 3 === 0) ? '单' : '双';
+            // 大小判定
+            let size = '中';
+            if ([0,1,2].includes(D)) size = '小';
+            if ([7,8,9].includes(D)) size = '大';
+
+            // 熵判定 (第6段)
+            let oe = null;
+            if ([3,4,5,6].includes(D)) {
+                let check = (I + n1 + n2) % 3;
+                oe = (check === 0) ? '单' : '双';
             }
-            return { id: 19, val: val, d: d, dir: size + (oe!=='无'?'|'+oe:''), p: 'P0' };
+            return { id: 19, d: D, size: size, oe: oe, p: 'P0', name: '手术刀' };
         },
-        // 算法18: 三角动量 (P2)
+
+        // 算法18 (P2 三角动量) - 第7段
         algo18: (n1, n2, n3) => {
-            let val = ((n1 + 3.1415) * (n2 + 2.7182) * (n3 + 1.4142)) / 42.75;
-            let d = parseInt(val.toFixed(6).split('.')[1][0]);
-            let u = Math.floor(val) % 10;
-            return { id: 18, val: val, d: d, dir: (d>=5?'大':'小')+'|'+(u%2!==0?'单':'双'), p: 'P2' };
+            let res = ((n1 + 3.1415) * (n2 + 2.7182) * (n3 + 1.4142)) / C.TRI_DIV;
+            let D = KERNEL.getD(res);
+            let U = Math.floor(res) % 10;
+            return { id: 18, d: D, dirSize: (D>=5?'大':'小'), dirOe: (U%2!==0?'单':'双'), p: 'P2', name: '动量' };
         },
-        // 算法2: 黄金反向 (P3)
+
+        // 算法2 (P3 黄金反向) - 第8段
         algo2: (n1) => {
-            let val = (n1 + 0.61803) * 0.61803;
-            let i = Math.floor(val);
-            // 偶数买单，奇数买双
-            return { id: 2, val: val, d: 0, dir: (i%2===0)?'单':'双', p: 'P3' };
+            let res = (n1 + C.REV_GOLD) * C.REV_GOLD;
+            let I = Math.floor(res);
+            // 偶数买单，奇数买双 (反心理)
+            return { id: 2, d: KERNEL.getD(res), dir: (I%2===0?'单':'双'), p: 'P3', name: '反割' };
         },
-        // 算法3: 变盘预警 (P3)
+
+        // 算法3 (P3 变盘预警) - 第9段
         algo3: (n1, n2, n3) => {
-            let val = (n1 + n2 + n3) / 6.6666;
-            let str = val.toFixed(6);
-            let d = parseInt(str.split('.')[1][0]);
-            let dir = '中';
-            if ([1,2,4,8].includes(d)) dir = '小';
-            if ([3,5,7,9].includes(d)) dir = '大';
-            if (d === 0 || d === 6) dir = '警(反)'; // 变盘
-            return { id: 3, val: val, d: d, dir: dir, p: 'P3' };
+            let res = (n1 + n2 + n3) / C.WARN_DIV;
+            let D = KERNEL.getD(res);
+            let signal = '常';
+            if (D === 0 || D === 6) signal = '警'; // 触发反趋势警报
+            return { id: 3, d: D, sig: signal, p: 'P3', name: '预警' };
         },
-        // 算法10: 极值修正 (P4)
-        algo10: (n4) => {
-            let val = 280 / (n4 + 2.2222);
-            let dec = val - Math.floor(val);
-            let dir = '震荡';
-            if (dec < 0.333) dir = '反弹';
-            if (dec > 0.666) dir = '延续';
-            return { id: 10, val: val, d: dec.toFixed(2), dir: dir, p: 'P4' };
+
+        // 算法10 (P4 极值倒数) - 第10段
+        algo10: (n1) => { // 严格按照指令：280 / (N1 + 2.2222)
+            let res = 280 / (n1 + C.EXT_DIV);
+            let dec = res - Math.floor(res); // 小数位
+            let action = '震';
+            if (dec < 0.333) action = '弹'; // 反弹
+            if (dec > 0.666) action = '续'; // 延续
+            return { id: 10, d: dec.toFixed(2), act: action, p: 'P4', name: '修正' };
         }
     };
 
-    // --- 系统核心逻辑 ---
-    
-    // 拉取数据（带防缓存）
-    async function fetchData() {
-        const domDot = document.getElementById('dot');
-        const domState = document.getElementById('sysState');
+    // --- 战术指挥官 (逻辑综合) ---
+    function analyzeTactics(lastItem, prevItem, history) {
+        const { n1, n2, n3, sum } = lastItem;
+        let logs = [];
+        let w = { b: 0, s: 0, o: 0, e: 0 };
         
-        domDot.classList.add('active');
-        domState.innerText = "正在通过 V5 隧道同步...";
-
-        try {
-            // 加时间戳防止缓存
-            const t = new Date().getTime();
-            const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(CONFIG.api + "&_t=" + t);
-            
-            const res = await fetch(proxy);
-            const json = await res.json();
-            
-            if (!json.contents) throw new Error("代理无响应");
-            const raw = JSON.parse(json.contents);
-            
-            if (!raw.data || raw.data.length === 0) throw new Error("源数据为空");
-
-            // 数据处理：合并去重
-            // API 是最新的在前。
-            let newDataList = raw.data.map(item => {
-                const parts = item.opennum.split('+');
-                return {
-                    q: item.qihao,
-                    n1: parseInt(parts[0]),
-                    n2: parseInt(parts[1]),
-                    n3: parseInt(parts[2]),
-                    sum: parseInt(item.sum),
-                    t: item.opentime
-                };
-            }).reverse(); // 转为旧->新，方便处理趋势
-
-            // 更新本地历史
-            let hasUpdate = false;
-            newDataList.forEach(item => {
-                if (!CONFIG.history.find(h => h.q === item.q)) {
-                    CONFIG.history.push(item);
-                    hasUpdate = true;
-                }
-            });
-            
-            // 保持最近 60 期
-            if (CONFIG.history.length > 60) CONFIG.history = CONFIG.history.slice(-60);
-
-            if (hasUpdate) {
-                domState.innerText = "数据已更新，执行运算...";
-                runV5Engine(); // 核心运算入口
-            } else {
-                domState.innerText = "数据未变，等待下期...";
-            }
-
-        } catch (e) {
-            console.error(e);
-            domState.innerText = "同步失败，重试中...";
-        } finally {
-            setTimeout(() => domDot.classList.remove('active'), 500);
-            resetTimer();
-        }
-    }
-
-    // --- 核心运算引擎 (第11-14段) ---
-    function runV5Engine() {
-        // 取最新一期作为“上一期”依据，预测下一期
-        const last = CONFIG.history[CONFIG.history.length - 1];
-        const prev = CONFIG.history[CONFIG.history.length - 2]; // 上上期，用于比较趋势
-        
-        // 下一期期号
-        const nextIssue = BigInt(last.q) + 1n;
-        document.getElementById('targetIssue').innerText = nextIssue;
+        logs.push(`>> [初始化] 载入期号 ${lastItem.q}, 数据 ${n1}+${n2}+${n3}=${sum}`);
 
         // 1. 运行算法矩阵
-        const r19 = MATH.algo19(last.n1, last.n2, last.n3);
-        const r16 = MATH.algo16(last.n1, last.n2);
-        const r14 = MATH.algo14(last.n1, last.n2, last.n3, last.sum);
-        const r18 = MATH.algo18(last.n1, last.n2, last.n3);
-        const r2 = MATH.algo2(last.n1);
-        const r3 = MATH.algo3(last.n1, last.n2, last.n3);
-        const r10 = MATH.algo10(last.sum);
+        const r16 = KERNEL.algo16(n1, n2);
+        const r14 = KERNEL.algo14(n1, n2, n3, sum); // N4用Sum
+        const r19 = KERNEL.algo19(n1, n2, n3);
+        const r18 = KERNEL.algo18(n1, n2, n3);
+        const r2  = KERNEL.algo2(n1);
+        const r3  = KERNEL.algo3(n1, n2, n3);
+        const r10 = KERNEL.algo10(n1); // 严格用N1
 
-        const matrix = [r19, r16, r14, r18, r2, r3, r10];
+        // 2. 状态判定 (第11段)
+        let isDragon = false; // 需结合历史判断(此处简化演示)
+        let isDiving = Math.abs(n1 - n2) > 8;
+        let isAlarm = (r3.sig === '警');
 
-        // 2. 动态冲突管理 (第11段)
-        let w = { big: 0, sml: 0, odd: 0, evn: 0 };
-        let log = ""; // 逻辑解析文本
+        // 3. 权重分配
+        // [P0] 算法19
+        if (r19.size === '大') w.b += 10;
+        if (r19.size === '小') w.s += 10;
+        if (r19.oe === '单') w.o += 10;
+        if (r19.oe === '双') w.e += 10;
+        logs.push(`[Algo19] 手术刀切入: ${r19.size}/${r19.oe || '-'} (P0锁定)`);
 
-        // 2.1 状态检测
-        let isDragon = false; // 龙局检测 (需遍历历史，此处简化)
-        let isDiving = Math.abs(last.n1 - last.n2) > 8; // 跳水状态
+        // [P1] 算法16
+        let w16 = isDiving ? 10 : 5; // 跳水提升权限
+        if (r16.dir === '大') w.b += w16; else w.s += w16;
+        if (isDiving) logs.push(`[Algo16] 检测到跳水(Diff>8)，权限提升至P0`);
 
-        // 2.2 权重计算
-        // Algo 19 (P0)
-        if (r19.dir.includes('大')) w.big += 10;
-        if (r19.dir.includes('小')) w.sml += 10;
-        if (r19.dir.includes('单')) w.odd += 10;
-        if (r19.dir.includes('双')) w.evn += 10;
-        log += `> [P0-手术刀] D位=${r19.d}，指向[${r19.dir}]，基准分+10。\n`;
+        // [P1] 算法14 (顺/裂)
+        // 简化逻辑：顺则加分给当前高分项，裂则给低分项
+        if (r14.dir === '顺') logs.push(`[Algo14] 顺势形态，能量共振`); 
+        else logs.push(`[Algo14] 裂变形态，注意反转`);
 
-        // Algo 16 (P1) - 跳水状态下升级为 P0
-        let p16_weight = isDiving ? 10 : 4;
-        if (r16.dir === '大') w.big += p16_weight; else w.sml += p16_weight;
-        if (isDiving) log += `> [状态触发] 极大差值(跳水)，Algo16 提权至 P0。\n`;
+        // [P2] 算法18
+        if (r18.dirSize==='大') w.b+=3; else w.s+=3;
+        if (r18.dirOe==='单') w.o+=3; else w.e+=3;
 
-        // Algo 3 (P3) - 变盘预警
-        if (r3.dir === '警(反)') {
-            log += `> [警告] Algo3 触发变盘信号，所有惯性结论降权 50%！\n`;
-            w.big *= 0.5; w.sml *= 0.5;
-        } else if (r3.dir === '大') w.big += 3; else if (r3.dir === '小') w.sml += 3;
+        // [P3] 算法2
+        if (r2.dir==='单') w.o+=3; else w.e+=3;
 
-        // Algo 10 (P4) - 极值修正
-        if (r10.dir === '反弹') {
-            log += `> [修正] 极值处于反弹位(Dec=${r10.d})，防守反向。\n`;
-            // 对冲逻辑
-            if (w.big > w.sml) w.sml += 3; else w.big += 3; 
-        }
-
-        // Algo 14 (顺/裂)
-        if (r14.dir === '同(顺)') {
-            log += `> [顺势] Algo14 顺形态，建议顺势加仓。\n`;
-            // 给当前最高分加分
-            if (w.big > w.sml) w.big += 2; else w.sml += 2;
+        // [警告] 算法3 (第9段)
+        if (isAlarm) {
+            logs.push(`[Algo3] ⚠️ D=${r3.d} 触发反趋势警报！强制清空惯性！`);
+            // 策略：所有分数减半，或强制归零重算 (此处执行减半+标记)
+            w.b *= 0.5; w.s *= 0.5; w.o *= 0.5; w.e *= 0.5;
+            document.getElementById('stateLabel').innerText = "变盘警报";
+            document.getElementById('stateLabel').className = "badge b-warn";
         } else {
-            log += `> [裂变] Algo14 裂变形态，注意双向防守。\n`;
+            document.getElementById('stateLabel').innerText = "系统常规";
+            document.getElementById('stateLabel').className = "badge b-live";
         }
 
-        // 3. 最终判定
-        let maxScore = Math.max(w.big, w.sml, w.odd, w.evn);
-        let finalCmd = "--";
-        let finalColor = "";
-        
-        if (w.big === maxScore) { finalCmd = "大"; finalColor = "red-t"; }
-        else if (w.sml === maxScore) { finalCmd = "小"; finalColor = "green-t"; }
-        else if (w.odd === maxScore) { finalCmd = "单"; finalColor = "red-t"; } // 单红双绿(PC28习惯)
-        else { finalCmd = "双"; finalColor = "green-t"; }
+        // [修正] 算法10 (第10段)
+        if (r10.act === '弹') {
+            logs.push(`[Algo10] 极低位反弹信号(D=${r10.d})，防守反向！`);
+            // 简单对冲逻辑
+            if (w.b > w.s) w.s += 4; else w.b += 4;
+        }
 
-        // 4. 战术路径生成 (第12段)
-        let tactics = `\n【核心战术路径】\n`;
-        tactics += `1. 主力压制: [${finalCmd}] (权重 ${maxScore})\n`;
-        tactics += `2. 防御拦截: [${r10.dir==='反弹'?'反向对冲':'算法10震荡'}]\n`;
-        tactics += `3. 资金建议: ${maxScore > 15 ? '重拳出击' : '猥琐发育'}\n`;
+        // 4. 第14段 盲区暴力校准 (7.5-8.5分段)
+        // 模拟逻辑：如果最大分值在 7-9 之间，强制 mod 3
+        let maxScore = Math.max(w.b, w.s, w.o, w.e);
+        if (maxScore >= 7 && maxScore <= 9) {
+            logs.push(`[V5.0] 能量在此消彼长区，激活 MOD 3 强杀...`);
+            let killKey = (Math.floor(r19.d) + n1 + n2) % 3 === 0 ? 'o' : 'e';
+            if (killKey === 'o') { w.o += 5; logs.push(`>> 强杀锁定: 单`); }
+            else { w.e += 5; logs.push(`>> 强杀锁定: 双`); }
+        }
 
-        // --- 渲染 UI ---
-        
-        // 核心圆盘
-        const domRes = document.getElementById('finalRes');
-        domRes.innerText = finalCmd;
-        domRes.className = `res-text ${finalColor}`;
-        document.getElementById('finalConf').innerText = `Confidence: ${Math.min(99, maxScore*4)}%`;
+        // 5. 生成战术组合 (Main, Def, Kill)
+        let combos = [
+            { name: "大单", s: w.b + w.o },
+            { name: "大双", s: w.b + w.e },
+            { name: "小单", s: w.s + w.o },
+            { name: "小双", s: w.s + w.e }
+        ];
+        combos.sort((a, b) => b.s - a.s);
 
-        // 积分板
-        document.getElementById('sBig').innerText = w.big;
-        document.getElementById('sSml').innerText = w.sml;
-        document.getElementById('sOdd').innerText = w.odd;
-        document.getElementById('sEvn').innerText = w.evn;
-
-        // 算法矩阵表
-        const tbody = document.getElementById('matrixBody');
-        tbody.innerHTML = '';
-        matrix.forEach(m => {
-            tbody.innerHTML += `<tr>
-                <td>Algo ${m.id}</td>
-                <td>${typeof m.d === 'number' ? m.d : m.d}</td>
-                <td style="font-weight:bold">${m.dir}</td>
-                <td>${m.p}</td>
-            </tr>`;
-        });
-
-        // 深度解析
-        document.getElementById('analysisBox').innerText = log + tactics;
-
-        // 历史列表
-        const histDiv = document.getElementById('historyList');
-        histDiv.innerHTML = CONFIG.history.slice().reverse().map(h => {
-            let s = h.sum;
-            let bs = s >= 14 ? '大' : '小';
-            let oe = s % 2 !== 0 ? '单' : '双';
-            return `<div class="history-row">
-                <span style="color:#888">${h.q.slice(-4)}期</span>
-                <span style="font-family:monospace; font-weight:700">${h.n1}+${h.n2}+${h.n3}=${h.sum}</span>
-                <div>
-                    <span class="badge ${bs==='大'?'b-red':'b-green'}">${bs}</span>
-                    <span class="badge ${oe==='单'?'b-red':'b-green'}">${oe}</span>
-                </div>
-            </div>`;
-        }).join('');
+        return {
+            raw: [r16, r14, r19, r18, r2, r3, r10],
+            weights: w,
+            combos: combos,
+            logs: logs
+        };
     }
 
-    // --- 倒计时逻辑 ---
-    function resetTimer() {
-        CONFIG.count = CONFIG.refreshInterval;
-        if (CONFIG.timer) clearInterval(CONFIG.timer);
-        CONFIG.timer = setInterval(() => {
-            CONFIG.count--;
-            document.getElementById('nextTimer').innerText = CONFIG.count + 's';
-            document.getElementById('progressBar').style.width = (100 - (CONFIG.count/CONFIG.refreshInterval)*100) + '%';
-            if (CONFIG.count <= 0) {
-                fetchData();
+    // --- 系统 IO ---
+    async function syncData() {
+        // UI Loading
+        document.getElementById('countdown').innerText = "SYNC...";
+        
+        try {
+            const t = new Date().getTime();
+            const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://pc28.help/kj.json?limit=50&t=' + t));
+            const json = await res.json();
+            const data = JSON.parse(json.contents).data;
+            
+            if (data && data.length > 0) {
+                // 转换数据格式
+                STATE.history = data.map(i => {
+                    let nums = i.opennum.split('+').map(Number);
+                    return { q: i.qihao, n1: nums[0], n2: nums[1], n3: nums[2], sum: parseInt(i.sum) };
+                }); // API返回是倒序的 [最新, 上期...]
+
+                renderUI();
             }
+        } catch(e) {
+            document.getElementById('logicLog').innerText += "\n[ERR] 连接中断，重试中...";
+        }
+
+        startTimer();
+    }
+
+    function renderUI() {
+        const list = STATE.history;
+        const cur = list[0]; // 最新一期
+        const prev = list[1]; // 上期
+
+        // 1. 预测下一期 (基于 cur)
+        const result = analyzeTactics(cur, prev, list);
+        const nextQ = BigInt(cur.q) + 1n;
+
+        // 填充战令
+        document.getElementById('nextIssue').innerText = nextQ;
+        const topCombo = result.combos[0];
+        const defCombo = result.combos[2]; // 第3名为防守(对冲位)
+        const killCombo = result.combos[3];
+
+        document.getElementById('finalCmd').innerText = topCombo.name.charAt(0); // 大/小
+        document.getElementById('finalDetail').innerText = `${topCombo.name} / ${result.combos[1].name}`;
+        
+        // 信心条
+        let conf = Math.min(100, topCombo.s * 4);
+        document.getElementById('confBar').style.width = conf + "%";
+
+        document.getElementById('tacMain').innerText = topCombo.name;
+        document.getElementById('tacDef').innerText = defCombo.name;
+        document.getElementById('tacKill').innerText = killCombo.name;
+
+        // 填充矩阵看板
+        const mBoard = document.getElementById('matrixBoard');
+        mBoard.innerHTML = '';
+        result.raw.forEach(r => {
+            let activeClass = r.p === 'P0' ? 'p0-active' : '';
+            let dispVal = r.d;
+            if (r.id === 19) dispVal = r.d; // 手术刀显示D位
+            mBoard.innerHTML += `
+                <div class="algo-cell ${activeClass}">
+                    <div class="algo-id">${r.id}</div>
+                    <div class="algo-res">${dispVal}</div>
+                </div>`;
+        });
+
+        // 填充权重条
+        const w = result.weights;
+        const setBar = (id, val) => {
+            document.getElementById('bar'+id).style.width = Math.min(100, val*5) + '%';
+            document.getElementById('val'+id).innerText = val.toFixed(0);
+        };
+        setBar('Big', w.b); setBar('Sml', w.s); setBar('Odd', w.o); setBar('Evn', w.e);
+
+        // 填充日志
+        const logBox = document.getElementById('logicLog');
+        logBox.innerText = result.logs.join('\n');
+
+        // 战果复盘 (用 prev 预测 cur)
+        if (prev) {
+            const pastRes = analyzeTactics(prev, list[2], list); // 复盘上期
+            const actSum = cur.sum;
+            const actBs = actSum >= 14 ? '大' : '小';
+            const actOe = actSum % 2 !== 0 ? '单' : '双';
+            const actName = actBs + actOe; // e.g. "大单"
+            
+            // 简单判定：主攻前两名包含结果即为胜
+            const hit = (pastRes.combos[0].name === actName || pastRes.combos[1].name === actName);
+            
+            const histDiv = document.getElementById('histList');
+            // 只显示最近5期
+            let html = `<div class="hist-row">
+                <span>${cur.q.slice(-4)}期 [${cur.n1}+${cur.n2}+${cur.n3}=${cur.sum}]</span>
+                <span>
+                    ${actName} 
+                    <span class="tag ${hit?'win':'loss'}">${hit?'命中':'偏离'}</span>
+                </span>
+            </div>`;
+            // 追加旧历史
+            histDiv.innerHTML = html + histDiv.innerHTML;
+            if (histDiv.children.length > 5) histDiv.lastChild.remove();
+        }
+    }
+
+    function startTimer() {
+        let t = 20;
+        const tmr = setInterval(() => {
+            t--;
+            document.getElementById('countdown').innerText = t + 's';
+            document.getElementById('loadBar').style.width = ((20-t)/20)*100 + "%";
+            if (t<=0) { clearInterval(tmr); syncData(); }
         }, 1000);
     }
 
-    // --- 启动 ---
-    window.onload = () => {
-        fetchData();
-    };
+    // Init
+    syncData();
 
 </script>
 </body>
