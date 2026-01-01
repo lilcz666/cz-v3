@@ -3,126 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gemini V7.0 [PRO UI]</title>
+    <title>GEMINI V7.0 [PRO DARK]</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* --- iOS 极简新拟态配色与核心样式 --- */
         :root {
-            --bg-color: #e0e5ec; /* 经典新拟态灰白底 */
-            --text-main: #4a5568;
-            --text-sub: #a0aec0;
-            --shadow-light: #ffffff;
-            --shadow-dark: #a3b1c6;
+            --bg-deep: #050505;
+            --bg-card: rgba(20, 20, 23, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.08);
             
-            /* 功能色保留，但调柔和一点适应新拟态 */
-            --blue: #3182ce;
-            --green: #48bb78;
-            --red: #e53e3e;
-            --yellow: #d69e2e;
-            --purple: #805ad5; 
+            --primary: #3b82f6; /* 蓝 - 主攻 */
+            --accent: #f59e0b;  /* 黄 - 防守 */
+            --danger: #ef4444;  /* 红 - 杀/大 */
+            --success: #10b981; /* 绿 - 小 */
+            --purple: #8b5cf6;  /* 紫 - 单 */
+            --cyan: #06b6d4;    /* 青 - 双 */
+            
+            --text-main: #e2e8f0;
+            --text-sub: #64748b;
+            
+            --font-num: 'JetBrains Mono', monospace;
+            --font-ui: 'Inter', sans-serif;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            margin: 0; padding: 20px 20px 40px 20px;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: var(--font-ui);
+            margin: 0; padding: 20px 16px 40px 16px;
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 30px; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px; }
 
-        /* --- Neumorphism Components --- */
-
-        /* 凸起卡片 */
-        .neu-card {
-            background: var(--bg-color);
-            border-radius: 20px;
-            box-shadow: 
-                9px 9px 16px var(--shadow-dark), 
-                -9px -9px 16px var(--shadow-light);
-            padding: 25px;
-            position: relative;
-        }
-
-        /* 凹陷区域 (用于进度条槽、显示区) */
-        .neu-inset {
-            background: var(--bg-color);
-            border-radius: 12px;
-            box-shadow: 
-                inset 5px 5px 10px var(--shadow-dark), 
-                inset -5px -5px 10px var(--shadow-light);
-        }
-
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; }
-        .brand { font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; color: var(--text-main); opacity: 0.8; }
-        .status-badge { 
-            padding: 8px 16px; border-radius: 20px; 
-            background: var(--bg-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            font-size: 0.75rem; font-weight: 600; color: var(--blue);
+        /* --- Header --- */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .brand { 
+            font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             display: flex; align-items: center; gap: 8px;
         }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 1.5s infinite; }
-
-        .label { 
-            font-size: 0.7rem; font-weight: 700; color: var(--text-sub); 
-            letter-spacing: 1.5px; margin-bottom: 20px; text-transform: uppercase; 
-            display: block; text-align: center;
-        }
-
-        /* Tactical Core Styles */
-        .tac-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
-        .tac-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .tac-label { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
-        .tac-val { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); }
+        .brand::before { content:''; display:block; width:4px; height:16px; background:var(--primary); border-radius:2px; }
         
-        .c-main { color: var(--blue); }
-        .c-def { color: var(--yellow); }
-        .c-kill { color: var(--text-sub); text-decoration: line-through; opacity: 0.6; }
-
-        /* Energy Bars */
-        .bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 15px; }
-        .bar-track { flex: 1; height: 10px; margin: 0 15px; border-radius: 5px; overflow: hidden; } /* 使用 neu-inset 类 */
-        .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-
-        /* Combo Grid */
-        .combo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); }
-        .combo-val { font-size: 1rem; font-weight: 800; margin-top: 5px; color: var(--text-main); }
-
-        /* Review List */
-        .hist-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 10px; margin-bottom: 8px; border-radius: 10px; font-size: 0.85rem; 
+        .status-badge { 
+            font-family: var(--font-num); font-size: 0.75rem; 
+            padding: 4px 12px; border-radius: 99px;
+            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success); display: flex; align-items: center; gap: 6px;
         }
-        /* 这种微浮起效果给列表用 */
-        .hist-neu {
-            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+        .pulse-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+
+        /* --- Glass Cards --- */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
         }
-        .tag { padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; }
         
-        .hit { color: var(--green); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
-        .def { color: var(--yellow); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
-        .miss { color: var(--red); background: transparent; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.5); }
-
-        /* --- NEW: Stats Panel --- */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .stat-box { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            padding: 15px; border-radius: 15px;
-            /* 内部小卡片浮起 */
-            background: var(--bg-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        .card-label {
+            position: absolute; top: 16px; left: 24px;
+            font-size: 0.7rem; font-weight: 700; color: var(--text-sub);
+            letter-spacing: 1px; text-transform: uppercase;
         }
-        .stat-title { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 5px; font-weight: 600; }
-        .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
-        
-        .s-high { color: var(--purple); }
-        .s-norm { color: var(--blue); }
+        .card-deco {
+            position: absolute; top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 70%);
+            pointer-events: none;
+        }
 
-        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.4; transform: scale(0.95); } }
+        /* --- Tactical Core (Main Display) --- */
+        .tac-grid { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .tac-box {
+            background: var(--bg-glass); border-radius: 16px; padding: 16px;
+            display: flex; flex-direction: column; align-items: center;
+            border: 1px solid var(--border-glass);
+        }
+        .tac-box.main { border-color: rgba(59, 130, 246, 0.3); background: radial-gradient(circle at center, rgba(59,130,246,0.1), transparent); }
+        .tac-box.kill { border-color: rgba(239, 68, 68, 0.15); opacity: 0.8; }
+        
+        .tac-title { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px; }
+        .tac-val { 
+            font-family: var(--font-num); font-size: 1.5rem; font-weight: 800; 
+            letter-spacing: -1px; text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .c-main { color: var(--primary); }
+        .c-def { color: var(--accent); }
+        .c-kill { color: var(--text-sub); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--danger); opacity: 0.5; }
+
+        /* --- Energy Bars (HUD Style) --- */
+        .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; margin-top: 25px; }
+        
+        .hud-item { display: flex; flex-direction: column; gap: 6px; }
+        .hud-head { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+        .hud-track {
+            height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; position: relative;
+        }
+        .hud-bar {
+            height: 100%; border-radius: 3px; position: relative;
+            box-shadow: 0 0 10px currentColor; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Combo Mini Grid */
+        .combo-row { 
+            display: flex; justify-content: space-between; 
+            margin-top: 20px; padding-top: 15px; 
+            border-top: 1px solid var(--border-glass); 
+        }
+        .mini-stat { text-align: center; }
+        .ms-label { font-size: 0.65rem; color: var(--text-sub); margin-bottom: 4px; }
+        .ms-val { font-family: var(--font-num); font-weight: 700; font-size: 0.9rem; }
+
+        /* --- History (Terminal Style) --- */
+        #histList { margin-top: 25px; display: flex; flex-direction: column; gap: 8px; }
+        .log-row {
+            display: grid; grid-template-columns: 60px 1fr 50px; align-items: center;
+            padding: 10px 12px; border-radius: 8px;
+            background: rgba(0,0,0,0.2); border: 1px solid transparent;
+            font-size: 0.85rem; font-family: var(--font-num);
+            transition: all 0.2s;
+        }
+        .log-row:first-child { 
+            background: rgba(59, 130, 246, 0.08); 
+            border-color: rgba(59, 130, 246, 0.2); 
+        }
+        
+        .log-q { color: var(--text-sub); }
+        .log-r { font-weight: 700; color: var(--text-main); text-align: center; }
+        .log-res { font-weight: 800; text-align: right; font-size: 0.75rem; }
+
+        .tag-hit { color: var(--success); text-shadow: 0 0 10px rgba(16,185,129,0.4); }
+        .tag-def { color: var(--accent); }
+        .tag-miss { color: var(--danger); opacity: 0.5; }
+
+        /* --- Analytics Grid --- */
+        .stat-hex-grid {
+            margin-top: 25px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .hex-item {
+            background: rgba(255,255,255,0.02); border-radius: 12px;
+            padding: 12px 0; text-align: center;
+            border: 1px solid var(--border-glass);
+        }
+        .hex-t { font-size: 0.65rem; color: var(--text-sub); margin-bottom: 4px; display: block; }
+        .hex-v { font-family: var(--font-num); font-size: 1rem; font-weight: 800; color: var(--text-main); }
+        .h-high { color: var(--primary); }
+
+        /* Animation */
+        @keyframes pulse { 0% { opacity:0.4; } 50% { opacity:1; box-shadow:0 0 10px var(--success); } 100% { opacity:0.4; } }
     </style>
 </head>
 <body>
@@ -130,165 +173,137 @@
 <div class="container">
     
     <div class="header">
-        <div class="brand">GEMINI V7.0</div>
-        <div class="status-badge"><div class="dot"></div> <span id="timer">LOADING...</span></div>
+        <div class="brand">GEMINI <span style="font-weight:400; opacity:0.5; margin-left:5px; font-size:0.8em">PRO</span></div>
+        <div class="status-badge"><div class="pulse-dot"></div> <span id="timer">SYNCING</span></div>
     </div>
 
-    <div class="neu-card">
-        <span class="label">TACTICAL CORE</span>
+    <div class="card">
+        <div class="card-deco"></div>
+        <span class="card-label">TACTICAL CORE // 战术核心</span>
         
-        <div class="tac-row">
-            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></span>主攻 (Main)</div>
-            <div id="tMain" class="tac-val c-main">--</div>
-        </div>
-
-        <div class="tac-row">
-            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--yellow)"></span>防守 (Def)</div>
-            <div id="tDef" class="tac-val c-def">--</div>
-        </div>
-
-        <div class="tac-row">
-            <div class="tac-label"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-sub)"></span>杀组 (Kill)</div>
-            <div id="tKill" class="tac-val c-kill">--</div>
+        <div class="tac-grid">
+            <div class="tac-box main" style="grid-column: span 2">
+                <span class="tac-title">PRIORITY TARGET (主攻)</span>
+                <div id="tMain" class="tac-val c-main">-- / --</div>
+            </div>
+            <div class="tac-box">
+                <span class="tac-title">DEFENSE (防守)</span>
+                <div id="tDef" class="tac-val c-def">--</div>
+            </div>
+            <div class="tac-box kill">
+                <span class="tac-title">KILL (杀组)</span>
+                <div id="tKill" class="tac-val c-kill">--</div>
+            </div>
         </div>
     </div>
 
-    <div class="neu-card">
-        <span class="label">ENERGY & PREDICTION</span>
+    <div class="card">
+        <span class="card-label">ENERGY MATRIX // 能量矩阵</span>
         
-        <div class="bar-row">
-            <span>大</span>
-            <div class="bar-track neu-inset"><div id="bBig" class="bar-fill" style="background:var(--red); width:0%"></div></div>
-            <span id="vBig">0.0</span>
-        </div>
-        <div class="bar-row">
-            <span>小</span>
-            <div class="bar-track neu-inset"><div id="bSml" class="bar-fill" style="background:var(--green); width:0%"></div></div>
-            <span id="vSml">0.0</span>
-        </div>
-        <div class="bar-row">
-            <span>单</span>
-            <div class="bar-track neu-inset"><div id="bOdd" class="bar-fill" style="background:var(--blue); width:0%"></div></div>
-            <span id="vOdd">0.0</span>
-        </div>
-        <div class="bar-row">
-            <span>双</span>
-            <div class="bar-track neu-inset"><div id="bEvn" class="bar-fill" style="background:var(--yellow); width:0%"></div></div>
-            <span id="vEvn">0.0</span>
+        <div class="hud-grid">
+            <div class="hud-item">
+                <div class="hud-head"><span>大 (BIG)</span> <span id="vBig">0.0</span></div>
+                <div class="hud-track"><div id="bBig" class="hud-bar" style="width:0%; background:var(--danger)"></div></div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-head"><span>小 (SML)</span> <span id="vSml">0.0</span></div>
+                <div class="hud-track"><div id="bSml" class="hud-bar" style="width:0%; background:var(--success)"></div></div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-head"><span>单 (ODD)</span> <span id="vOdd">0.0</span></div>
+                <div class="hud-track"><div id="bOdd" class="hud-bar" style="width:0%; background:var(--purple)"></div></div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-head"><span>双 (EVN)</span> <span id="vEvn">0.0</span></div>
+                <div class="hud-track"><div id="bEvn" class="hud-bar" style="width:0%; background:var(--cyan)"></div></div>
+            </div>
         </div>
 
-        <div class="combo-grid">
-            <div>
-                <div id="cN1" style="font-size:0.7rem; color:var(--blue)">-</div>
-                <div id="cV1" class="combo-val">-</div>
-            </div>
-            <div>
-                <div id="cN2" style="font-size:0.7rem; color:var(--blue)">-</div>
-                <div id="cV2" class="combo-val">-</div>
-            </div>
-            <div>
-                <div id="cN3" style="font-size:0.7rem; color:var(--yellow)">-</div>
-                <div id="cV3" class="combo-val">-</div>
-            </div>
-            <div>
-                <div id="cN4" style="font-size:0.7rem; color:var(--text-sub)">-</div>
-                <div id="cV4" class="combo-val" style="color:var(--text-sub)">-</div>
-            </div>
+        <div class="combo-row">
+            <div class="mini-stat"><div class="ms-label" id="cN1">--</div><div class="ms-val c-main" id="cV1">--</div></div>
+            <div class="mini-stat"><div class="ms-label" id="cN2">--</div><div class="ms-val c-main" id="cV2">--</div></div>
+            <div class="mini-stat"><div class="ms-label" id="cN3">--</div><div class="ms-val c-def" id="cV3">--</div></div>
+            <div class="mini-stat"><div class="ms-label" id="cN4">--</div><div class="ms-val c-kill" id="cV4">--</div></div>
         </div>
     </div>
 
-    <div class="neu-card">
-        <span class="label">REVIEW (LAST 10)</span>
-        <div id="histList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    <div class="card">
+        <span class="card-label">TERMINAL LOG // 近10期记录</span>
+        <div id="histList"></div>
     </div>
 
-    <div class="neu-card">
-        <span class="label">ACCURACY ANALYTICS</span>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <span class="stat-title">大小准确率</span>
-                <span class="stat-num s-norm" id="acc-bs">--%</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-title">单双准确率</span>
-                <span class="stat-num s-norm" id="acc-oe">--%</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-title">主攻准确率</span>
-                <span class="stat-num s-high" id="acc-main">--%</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-title">防守准确率</span>
-                <span class="stat-num s-norm" id="acc-def">--%</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-title">综合准确率</span>
-                <span class="stat-num s-high" id="acc-total">--%</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-title">杀组准确率</span>
-                <span class="stat-num s-high" id="acc-kill">--%</span>
-            </div>
+    <div class="card" style="padding-bottom: 30px;">
+        <span class="card-label">ANALYTICS // 全局数据</span>
+        <div class="stat-hex-grid">
+            <div class="hex-item"><span class="hex-t">综合胜率</span><span id="acc-total" class="hex-v h-high">--%</span></div>
+            <div class="hex-item"><span class="hex-t">主攻命中</span><span id="acc-main" class="hex-v h-high">--%</span></div>
+            <div class="hex-item"><span class="hex-t">杀组成功</span><span id="acc-kill" class="hex-v">--%</span></div>
+            <div class="hex-item"><span class="hex-t">大小准确</span><span id="acc-bs" class="hex-v">--%</span></div>
+            <div class="hex-item"><span class="hex-t">单双准确</span><span id="acc-oe" class="hex-v">--%</span></div>
+            <div class="hex-item"><span class="hex-t">防守命中</span><span id="acc-def" class="hex-v">--%</span></div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- 1. 原版 V5.0 指令集常量 (完全保留) ---
+    // --- 1. 指令集常量 ---
     const C = {
         SQRT_OSC: 28.5, SQRT_ADD: 7.5515, FISS_GOLD: 1.6180, SCAL_GOLD: 3.81966,
         TRI_DIV: 42.75, REV_GOLD: 0.61803, WARN_DIV: 6.6666, EXT_DIV: 2.2222
     };
 
     const STATE = {
-        api: "https://pc28.help/kj.json?limit=50",
+        // 修正：限制改为 20，提高速度
+        api: "https://pc28.help/kj.json?limit=20",
         history: [],
-        refresh: 20
+        refresh: 15 // 刷新频率
     };
 
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
         
-        // --- 2. 核心运算逻辑 (完全保留，未删减) ---
         run: (n1, n2, n3, sum, prevItem, history) => {
-            // 初始底分 (防止0)
-            let w = { b:1, s:1, o:1, e:1 }; 
-            let logs = [];
+            // 修正：底分稍微给高一点点，并加入确定性微扰动，防止0和相等
+            // 扰动因子基于 (n1+n2+n3) 生成，保证同数据下结果一致，但不同数据间有差异
+            let seed = (n1 + n2 * 1.1 + n3 * 1.2) * 0.001; 
+            
+            // 基础底分不再是1，而是带有微小差异的底数
+            let w = { 
+                b: 10 + seed, 
+                s: 10 - seed, 
+                o: 10 + (seed * 1.5), 
+                e: 10 - (seed * 1.5) 
+            }; 
 
-            // 状态检测 (第11段)
             let isDive = Math.abs(n1-n2) > 8;
-            let isDictator = false;
-
-            // --- P0: Algo 19 (手术刀) ---
+            
+            // --- Algo 19 (手术刀) ---
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
             let i19 = Math.floor(r19);
             
-            if([7,8,9].includes(d19)) { w.b+=1000; isDictator=true; }
-            else if([0,1,2].includes(d19)) { w.s+=1000; isDictator=true; }
+            if([7,8,9].includes(d19)) { w.b+=1000; }
+            else if([0,1,2].includes(d19)) { w.s+=1000; }
             
             if([3,4,5,6].includes(d19)) {
-                if((i19+n1+n2)%3===0) { w.o+=1000; isDictator=true; }
-                else { w.e+=1000; isDictator=true; }
+                if((i19+n1+n2)%3===0) { w.o+=1000; }
+                else { w.e+=1000; }
             }
 
-            // --- P1: Algo 16 (几何) ---
+            // --- Algo 16 (几何) ---
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
             let score16 = isDive ? 1000 : 50; 
-            if(isDive) isDictator = true;
             
             if(d16>=5) w.b+=score16; else w.s+=score16;
 
-            // --- P1: Algo 14 (裂变) ---
+            // --- Algo 14 (裂变) ---
             if(prevItem) {
                 let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
                 let d14 = KERNEL.getD(r14);
                 let w14 = 40; 
-                
                 let prevBs = prevItem.sum >= 14 ? 'Big' : 'Small';
-                
                 if(d14<=4) { 
                     if(prevBs==='Big') w.b+=w14; else w.s+=w14;
                 } else {
@@ -296,55 +311,66 @@
                 }
             }
 
-            // --- P2/P3: 常规堆叠 ---
+            // --- 常规堆叠 ---
             let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
             (Math.floor(r18)%10%2!==0) ? w.o+=30 : w.e+=30;
             
             let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
             (Math.floor(r2)%2===0) ? w.o+=30 : w.e+=30;
 
-            // --- P4: Algo 10 (极值修正) ---
+            // --- Algo 10 (极值修正) ---
             let r10 = 280/(n1+C.EXT_DIV);
             let dec10 = r10 - Math.floor(r10);
             if(dec10 < 0.333) {
-                if(w.b > w.s) w.b *= 0.6; 
-                else w.s *= 0.6;
+                if(w.b > w.s) w.b *= 0.6; else w.s *= 0.6;
             }
 
             // --- Algo 3 (警报) ---
             let r3 = (n1+n2+n3)/C.WARN_DIV;
             let d3 = KERNEL.getD(r3);
             if(d3===0 || d3===6) {
-                w.b=1; w.s=1; w.o=1; w.e=1;
+                // 警报时保持基础底分差异
+                w.b=10+seed; w.s=10-seed; w.o=10+seed; w.e=10-seed;
             }
 
-            // --- 归一化 ---
+            // --- 归一化处理 ---
             let total = w.b+w.s+w.o+w.e;
+            // 防止total极小
+            if(total < 1) total = 1;
+
             let nW = { 
                 b: (w.b/total)*10, s: (w.s/total)*10, 
                 o: (w.o/total)*10, e: (w.e/total)*10 
             };
 
-            // 组合分
+            // 组合分计算
             let combos = [
                 { name: "大单", s: w.b+w.o }, { name: "大双", s: w.b+w.e },
                 { name: "小单", s: w.s+w.o }, { name: "小双", s: w.s+w.e }
             ];
+            
+            // 排序前加入微量因子，彻底解决同分排序不稳定的问题
+            combos.forEach((c, idx) => {
+                c.s += (idx * 0.001); // 极其微小的偏移，确保sort稳定
+            });
+
             combos.sort((a,b) => b.s - a.s);
             
             let cTotal = combos.reduce((a,b)=>a+b.s,0);
+            if(cTotal < 1) cTotal = 1;
             let nCombos = combos.map(c => ({ name: c.name, s: (c.s/cTotal)*10 }));
 
             return { nW, nCombos };
         }
     };
 
-    // --- APP ---
+    // --- APP Logic ---
     async function sync() {
-        document.getElementById('timer').innerText = "SYNC...";
+        document.getElementById('timer').innerText = "DATA SYNC";
+        document.querySelector('.pulse-dot').style.background = "#eab308"; // Loading Yellow
+
         try {
             const t = Date.now();
-            // 使用 reliable proxy
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(STATE.api + "&t=" + t)}`);
             const json = await res.json();
             const data = JSON.parse(json.contents).data;
@@ -354,8 +380,12 @@
                     return { q: i.qihao, n1: nums[0], n2: nums[1], n3: nums[2], sum: parseInt(i.sum) };
                 });
                 render();
+                document.querySelector('.pulse-dot').style.background = "#10b981"; // Success Green
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error(e); 
+            document.querySelector('.pulse-dot').style.background = "#ef4444"; // Error Red
+        }
         startTimer();
     }
 
@@ -370,10 +400,11 @@
         const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, prev, list);
         
         // 2. 复仇逻辑
-        let revenge = localStorage.getItem('v7_revenge');
+        let revenge = localStorage.getItem('v7_pro_revenge');
         if(revenge) {
             let idx = res.nCombos.findIndex(c => c.name === revenge);
             if(idx >= 2) {
+                // 如果复仇对象在后排，强行提至第一位，并交换权重显示
                 let tmp = res.nCombos[0];
                 res.nCombos[0] = res.nCombos[idx];
                 res.nCombos[idx] = tmp;
@@ -381,13 +412,17 @@
         }
 
         // 3. UI 更新
-        document.getElementById('tMain').innerText = `${res.nCombos[0].name} / ${res.nCombos[1].name}`;
+        document.getElementById('tMain').innerHTML = `<span style="color:var(--primary)">${res.nCombos[0].name}</span> <span style="font-size:0.6em;opacity:0.5;margin:0 4px">/</span> <span style="color:rgba(255,255,255,0.7)">${res.nCombos[1].name}</span>`;
         document.getElementById('tDef').innerText = res.nCombos[2].name;
         document.getElementById('tKill').innerText = res.nCombos[3].name;
 
         const draw = (id, val) => {
+            // 确保显示不为0.0，如果非常小但非0，显示 <0.1
+            let disp = val.toFixed(1);
+            if(val > 0 && disp === "0.0") disp = "0.1";
+            
             document.getElementById('b'+id).style.width = Math.min(100, val*10) + '%';
-            document.getElementById('v'+id).innerText = val.toFixed(1);
+            document.getElementById('v'+id).innerText = disp;
         };
         draw('Big', res.nW.b); draw('Sml', res.nW.s);
         draw('Odd', res.nW.o); draw('Evn', res.nW.e);
@@ -397,14 +432,13 @@
             document.getElementById(`cV${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
         }
 
-        // 4. 历史复盘 UI
+        // 4. 历史复盘 (Terminal Style)
         const hBox = document.getElementById('histList');
         hBox.innerHTML = '';
         
         let lastHit = false;
         let lastMain = '';
 
-        // 复盘显示最近10期
         for(let i=0; i<10; i++) {
             const t = list[i]; 
             const p = list[i+1]; 
@@ -416,85 +450,61 @@
             if(i===0) lastMain = sim.nCombos[0].name;
 
             let tag = ''; let cls = '';
-            // 主攻 (前2)
             if(sim.nCombos[0].name === real || sim.nCombos[1].name === real) {
-                tag = '命中'; cls = 'hit';
+                tag = 'HIT'; cls = 'tag-hit';
                 if(i===0) lastHit = true;
             } 
-            // 防守 (第3)
             else if(sim.nCombos[2].name === real) {
-                tag = '防守'; cls = 'def';
+                tag = 'DEF'; cls = 'tag-def';
             } 
             else {
-                tag = '偏离'; cls = 'miss';
+                tag = 'MISS'; cls = 'tag-miss';
             }
 
             hBox.innerHTML += `
-                <div class="hist-item hist-neu">
-                    <div><b style="color:var(--text-main)">${t.q.slice(-4)}期</b> <span style="color:var(--text-sub); margin-left:8px; font-weight:500;">${real} [${t.sum}]</span></div>
-                    <div class="tag ${cls}">${tag}</div>
+                <div class="log-row">
+                    <div class="log-q">${t.q.slice(-4)}</div>
+                    <div class="log-r">${real} <span style="opacity:0.4; font-size:0.8em">[${t.sum}]</span></div>
+                    <div class="log-res ${cls}">${tag}</div>
                 </div>`;
         }
 
-        // 复仇状态更新
-        if(!lastHit) localStorage.setItem('v7_revenge', lastMain);
-        else localStorage.removeItem('v7_revenge');
+        if(!lastHit) localStorage.setItem('v7_pro_revenge', lastMain);
+        else localStorage.removeItem('v7_pro_revenge');
 
-        // --- 5. 【新增逻辑】 计算六维准确率 (遍历所有历史) ---
+        // 5. 计算六维准确率
         calculateStats(list);
     }
 
     function calculateStats(list) {
-        let stats = {
-            bs: 0, oe: 0, 
-            main: 0, def: 0, kill: 0,
-            total: 0
-        };
+        let stats = { bs: 0, oe: 0, main: 0, def: 0, kill: 0, total: 0 };
 
-        // 从第0期开始，模拟历史每一期的预测（直到倒数第3期，因为需要前后数据）
-        // list[i] 是结果，list[i+1] 是输入
+        // 统计所有拉取到的数据（减去头部不需要预测的）
         for(let i = 0; i < list.length - 2; i++) {
-            const target = list[i]; // 实际开奖
-            const input = list[i+1]; // 当期输入
-            const prev = list[i+2]; // 上期（辅助）
+            const target = list[i];
+            const input = list[i+1];
+            const prev = list[i+2];
 
             const sim = KERNEL.run(input.n1, input.n2, input.n3, input.sum, prev, list);
             
-            // 真实属性
             const realBig = target.sum >= 14;
             const realOdd = target.sum % 2 !== 0;
             const realCombo = (realBig?'大':'小') + (realOdd?'单':'双');
 
             stats.total++;
-
-            // 1. 大小单项 (比较权重)
-            const predBig = sim.nW.b > sim.nW.s;
-            if(predBig === realBig) stats.bs++;
-
-            // 2. 单双单项
-            const predOdd = sim.nW.o > sim.nW.e;
-            if(predOdd === realOdd) stats.oe++;
-
-            // 3. 主攻 (前2命中)
+            if((sim.nW.b > sim.nW.s) === realBig) stats.bs++;
+            if((sim.nW.o > sim.nW.e) === realOdd) stats.oe++;
             if(sim.nCombos[0].name === realCombo || sim.nCombos[1].name === realCombo) stats.main++;
-
-            // 4. 防守 (第3命中)
             if(sim.nCombos[2].name === realCombo) stats.def++;
-
-            // 5. 杀组 (杀组不等于结果即为成功)
             if(sim.nCombos[3].name !== realCombo) stats.kill++;
         }
 
-        // 渲染底部面板
         const calc = (v) => Math.round((v / stats.total) * 100) + "%";
-        
         document.getElementById('acc-bs').innerText = calc(stats.bs);
         document.getElementById('acc-oe').innerText = calc(stats.oe);
         document.getElementById('acc-main').innerText = calc(stats.main);
         document.getElementById('acc-def').innerText = calc(stats.def);
         document.getElementById('acc-kill').innerText = calc(stats.kill);
-        
-        // 综合准确率 = (主攻+防守) / 总场次
         document.getElementById('acc-total').innerText = calc(stats.main + stats.def);
     }
 
