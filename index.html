@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-deep: #050505;
-            --card-bg: rgba(20, 20, 23, 0.85);
+            --card-bg: rgba(20, 20, 23, 0.9);
             --card-border: rgba(255, 255, 255, 0.1);
             --primary: #3b82f6; --accent: #f59e0b; --danger: #ef4444; --success: #10b981;
             --purple: #8b5cf6; --cyan: #06b6d4;
@@ -31,6 +31,8 @@
         .pulse-dot { width: 6px; height: 6px; background: var(--success); box-shadow: 0 0 8px var(--success); border-radius: 50%; animation: pulse 2s infinite; }
         .card { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); }
         .card-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        
+        /* 核心战术板 */
         .tac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .tac-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .tac-box.main { grid-column: span 2; background: linear-gradient(135deg, rgba(59,130,246,0.1), transparent); border-color: rgba(59,130,246,0.3); }
@@ -40,6 +42,8 @@
         .c-main { color: var(--primary); text-shadow: 0 0 15px rgba(59,130,246,0.4); }
         .c-def { color: var(--accent); }
         .c-kill { color: var(--danger); text-decoration: line-through; opacity: 0.7; }
+        
+        /* 能量条 */
         .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 16px; margin-top: 20px; }
         .hud-item { display: flex; flex-direction: column; gap: 6px; }
         .hud-head { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--text-sub); }
@@ -50,7 +54,19 @@
         .mini-stat:last-child { border-right: none; }
         .ms-label { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; }
         .ms-val { font-family: var(--font-num); font-weight: 700; font-size: 0.9rem; }
-        #histList { display: flex; flex-direction: column; gap: 8px; }
+        
+        /* 历史记录 - 带滚动条 */
+        #histList { 
+            display: flex; flex-direction: column; gap: 8px; 
+            max-height: 380px; /* 限制高度 */
+            overflow-y: auto;  /* 允许滚动 */
+            padding-right: 4px; /* 给滚动条留位 */
+        }
+        /* 自定义滚动条样式 */
+        #histList::-webkit-scrollbar { width: 4px; }
+        #histList::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        #histList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
         .log-row { display: grid; grid-template-columns: 60px 1fr 60px; align-items: center; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.02); font-family: var(--font-num); font-size: 0.8rem; border-left: 2px solid transparent; }
         .log-row:first-child { background: rgba(59,130,246,0.08); border-left-color: var(--primary); }
         .log-q { color: var(--text-sub); opacity: 0.8; }
@@ -58,10 +74,13 @@
         .tag-hit { color: var(--success); text-shadow: 0 0 8px rgba(16,185,129,0.3); }
         .tag-def { color: var(--accent); }
         .tag-miss { color: var(--danger); opacity: 0.8; }
+        
+        /* 统计 */
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .stat-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 12px 0; border-radius: 8px; text-align: center; }
         .stat-t { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; text-transform: uppercase; }
         .stat-v { font-family: var(--font-num); font-size: 1rem; font-weight: 700; color: #fff; }
+        
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
@@ -74,7 +93,7 @@
     </div>
 
     <div class="card">
-        <span class="card-label">TACTICAL DATA // 战术面板</span>
+        <span class="card-label">TACTICAL CORE // 核心预测</span>
         <div class="tac-grid">
             <div class="tac-box main">
                 <span class="tac-title">PRIORITY (主力)</span>
@@ -120,12 +139,12 @@
     </div>
 
     <div class="card">
-        <span class="card-label">TERMINAL LOGS (LAST 10)</span>
+        <span class="card-label">TERMINAL LOGS (ALL 20)</span>
         <div id="histList"></div>
     </div>
 
     <div class="card" style="padding-bottom: 25px;">
-        <span class="card-label">ANALYTICS // 六维统计</span>
+        <span class="card-label">ANALYTICS // 全周期统计</span>
         <div class="stat-grid">
             <div class="stat-box"><span class="stat-t">主力 (MAIN)</span><span id="acc-main" class="stat-v c-main">--%</span></div>
             <div class="stat-box"><span class="stat-t">防守 (DEF)</span><span id="acc-def" class="stat-v c-def">--%</span></div>
@@ -141,16 +160,10 @@
     const CONFIG = {
         API: "https://pc28.help/kj.json?limit=20",
         REFRESH: 15,
-        // 七大公式所需的完整常量集
         C: { 
-            SCAL_GOLD: 3.81966, 
-            SQRT_OSC: 28.5, 
-            SQRT_ADD: 7.5515,
-            FISS_GOLD: 1.6180, // 裂变常量
-            TRI_DIV: 42.75,    // 三角除数
-            REV_GOLD: 0.61803, // 反向黄金分割
-            WARN_DIV: 6.6666,  // 警报除数
-            EXT_DIV: 2.2222    // 极值除数
+            SCAL_GOLD: 3.81966, SQRT_OSC: 28.5, SQRT_ADD: 7.5515,
+            FISS_GOLD: 1.6180, TRI_DIV: 42.75, REV_GOLD: 0.61803,
+            WARN_DIV: 6.6666, EXT_DIV: 2.2222
         }
     };
 
@@ -158,28 +171,40 @@
 
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
-        
-        // 核心修正：强制转数字，防止字符串导致计算失效
         safeNum: (n) => Number(n) || 0,
+
+        // 内部频率分析
+        analyzeStats: (list) => {
+            let stats = { b:0, s:0, o:0, e:0 };
+            let count = Math.min(list.length, 20); 
+            for(let i=0; i<count; i++) {
+                let s = list[i].sum;
+                if(s >= 14) stats.b++; else stats.s++;
+                if(s % 2 !== 0) stats.o++; else stats.e++;
+            }
+            return stats;
+        },
 
         run: (rawN1, rawN2, rawN3, sum, prev, history) => {
             const C = CONFIG.C;
-            
-            // 1. 数据清洗
             const n1 = KERNEL.safeNum(rawN1);
             const n2 = KERNEL.safeNum(rawN2);
             const n3 = KERNEL.safeNum(rawN3);
 
-            // 2. 基础分降为 10（原来是100），让加减分效果显著
             let seed = (n1 * 1.01 + n2 * 1.02 + n3 * 1.03) * 0.0001;
             let w = { b: 10+seed, s: 10-seed, o: 10+seed, e: 10-seed };
             
-            // --- 七大公式核心 (V5 高波动版) ---
+            // 20期频率分析 (Short-term Trend)
+            if(history && history.length > 0) {
+                let stats = KERNEL.analyzeStats(history);
+                // 追热：只看20期内的热度
+                if(stats.b > stats.s + 3) w.b += 15;
+                if(stats.s > stats.b + 3) w.s += 15;
+            }
 
-            // Algo 19 手术刀 (强力惩罚)
+            // V5 核心公式
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
-            // 只要触发，直接拉开 50 分差距
             if (d19 >= 5) { w.b += 50; w.s -= 20; } 
             else { w.s += 50; w.b -= 20; }
             
@@ -187,7 +212,6 @@
             if ((i19 + d19) % 2 !== 0) { w.o += 40; w.e -= 15; } 
             else { w.e += 40; w.o -= 15; }
 
-            // Algo 16 几何裂变
             let isDive = Math.abs(n1-n2) > 8;
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
@@ -195,7 +219,6 @@
             if(d16 >= 5) { w.b += sc16; w.s -= sc16/2; }
             else { w.s += sc16; w.b -= sc16/2; }
 
-            // Algo 14 裂变
             if(prev) {
                 let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
                 let d14 = KERNEL.getD(r14);
@@ -208,40 +231,32 @@
                 }
             }
 
-            // Algo 18 三角
             let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
             (Math.floor(r18)%10%2!==0) ? w.o+=20 : w.e+=20;
 
-            // Algo 2 反转
             let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
             (Math.floor(r2)%2===0) ? w.o+=15 : w.e+=15;
 
-            // Algo 10 修正
             let r10 = 280/(n1+C.EXT_DIV);
             let dec10 = r10 - Math.floor(r10);
             if(dec10 < 0.333) {
                 if(w.b > w.s) w.b *= 0.8; else w.s *= 0.8;
             }
 
-            // Algo 3 熔断 (重置为基础分)
             let r3 = (n1+n2+n3)/C.WARN_DIV;
             let d3 = KERNEL.getD(r3);
             if(d3===0 || d3===6) {
                 w.b=10+seed; w.s=10-seed; w.o=10+seed; w.e=10-seed;
             }
 
-            // --- V5 核心：极差放大器 (专治 2.5 平局) ---
             const boost = (k1, k2) => {
-                let diff = Math.abs(w[k1] - w[k2]);
-                // 如果差距过小，强制给领先者加权
-                if(diff < 5) {
+                if(Math.abs(w[k1] - w[k2]) < 5) {
                     if(w[k1] > w[k2]) w[k1] += 30; else w[k2] += 30;
                 }
             };
             boost('b', 's');
             boost('o', 'e');
 
-            // --- 归一化 (Sum=10) ---
             let minV = Math.min(w.b, w.s, w.o, w.e);
             if(minV < 5) {
                 let lift = Math.abs(minV) + 10;
@@ -311,12 +326,10 @@
             const cur = list[0];
             const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, list[1], list);
 
-            // UI - Core
             document.getElementById('tMain').innerHTML = `<span style="color:var(--primary)">${res.nCombos[0].name}</span> <span style="font-size:0.6em;opacity:0.5">/</span> <span style="color:rgba(255,255,255,0.7);font-size:0.8em">${res.nCombos[1].name}</span>`;
             document.getElementById('tDef').innerText = res.nCombos[2].name;
             document.getElementById('tKill').innerText = res.nCombos[3].name;
 
-            // UI - Bars
             const draw = (id, v) => {
                 document.getElementById('b'+id).style.width = Math.min(100, v*10) + '%';
                 document.getElementById('v'+id).innerText = v.toFixed(1);
@@ -324,13 +337,11 @@
             draw('Big', res.nW.b); draw('Sml', res.nW.s);
             draw('Odd', res.nW.o); draw('Evn', res.nW.e);
 
-            // UI - Combos
             for(let i=0; i<4; i++) {
                 document.getElementById(`cN${i+1}`).innerText = res.nCombos[i].name;
                 document.getElementById(`cV${i+1}`).innerText = res.nCombos[i].s.toFixed(1);
             }
 
-            // Stats & Logs
             APP.calcStats(list);
         },
         calcStats: (list) => {
@@ -338,10 +349,10 @@
             box.innerHTML = '';
             let s = { main:0, def:0, kill:0, bs:0, oe:0, total:0 };
 
-            for(let i=0; i<10; i++) {
-                if(i+2 >= list.length) break;
-                const t = list[i]; // Target
-                const inp = list[i+1]; // Input
+            // 修正：循环统计全部数据 (预留2期做运算缓冲)
+            for(let i=0; i<list.length-2; i++) {
+                const t = list[i]; 
+                const inp = list[i+1]; 
                 const sim = KERNEL.run(inp.n1, inp.n2, inp.n3, inp.sum, list[i+2], list);
                 
                 const rBig = t.sum >= 14;
@@ -360,7 +371,6 @@
                 if((sim.nW.b > sim.nW.s) === rBig) s.bs++;
                 if((sim.nW.o > sim.nW.e) === rOdd) s.oe++;
 
-                // Tag Logic
                 let tag = '', cls = '';
                 if(isMain) { tag = 'HIT'; cls = 'tag-hit'; }
                 else if(isDef) { tag = 'DEF'; cls = 'tag-def'; }
