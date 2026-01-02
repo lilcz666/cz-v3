@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cz算法 V4 [FULL]</title>
+    <title>Cz算法 V3</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -69,7 +69,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand">CZ算法 <span>V4(FULL)</span></div>
+        <div class="brand">CZ算法 <span>V3</span></div>
         <div class="status-badge"><div class="pulse-dot"></div> <span id="timer">SYNC</span></div>
     </div>
 
@@ -159,35 +159,47 @@
     const KERNEL = {
         getD: (n) => parseInt(n.toFixed(6).split('.')[1][0]),
         
-        run: (n1, n2, n3, sum, prev, history) => {
+        // 核心修正：强制转数字，防止字符串导致计算失效
+        safeNum: (n) => Number(n) || 0,
+
+        run: (rawN1, rawN2, rawN3, sum, prev, history) => {
             const C = CONFIG.C;
-            let seed = (n1 * 1.01 + n2 * 1.02 + n3 * 1.03) * 0.0001;
-            let w = { b: 100+seed, s: 100-seed, o: 100+seed, e: 100-seed };
             
-            // --- 1. [核心] Algo 19 手术刀 (强力惩罚) ---
+            // 1. 数据清洗
+            const n1 = KERNEL.safeNum(rawN1);
+            const n2 = KERNEL.safeNum(rawN2);
+            const n3 = KERNEL.safeNum(rawN3);
+
+            // 2. 基础分降为 10（原来是100），让加减分效果显著
+            let seed = (n1 * 1.01 + n2 * 1.02 + n3 * 1.03) * 0.0001;
+            let w = { b: 10+seed, s: 10-seed, o: 10+seed, e: 10-seed };
+            
+            // --- 七大公式核心 (V5 高波动版) ---
+
+            // Algo 19 手术刀 (强力惩罚)
             let r19 = (Math.sqrt(n1**2+n2**2+n3**2))/C.SCAL_GOLD;
             let d19 = KERNEL.getD(r19);
-            // 强制二选一，加大分差
-            if (d19 >= 5) { w.b += 300; w.s -= 150; } 
-            else { w.s += 300; w.b -= 150; }
+            // 只要触发，直接拉开 50 分差距
+            if (d19 >= 5) { w.b += 50; w.s -= 20; } 
+            else { w.s += 50; w.b -= 20; }
             
             let i19 = Math.floor(r19);
-            if ((i19 + d19) % 2 !== 0) { w.o += 250; w.e -= 100; } 
-            else { w.e += 250; w.o -= 100; }
+            if ((i19 + d19) % 2 !== 0) { w.o += 40; w.e -= 15; } 
+            else { w.e += 40; w.o -= 15; }
 
-            // --- 2. [核心] Algo 16 几何裂变 ---
+            // Algo 16 几何裂变
             let isDive = Math.abs(n1-n2) > 8;
             let r16 = Math.sqrt(n1*n2*(1+Math.abs(n1-n2)/C.SQRT_OSC)+C.SQRT_ADD);
             let d16 = KERNEL.getD(r16);
-            let sc16 = isDive ? 400 : 200; 
+            let sc16 = isDive ? 60 : 30; 
             if(d16 >= 5) { w.b += sc16; w.s -= sc16/2; }
             else { w.s += sc16; w.b -= sc16/2; }
 
-            // --- 3. [复活] Algo 14 裂变追踪 (V1原版逻辑) ---
+            // Algo 14 裂变
             if(prev) {
                 let r14 = Math.sqrt(((n1-n2)**2) + ((n3**2)/(sum+1)) + C.FISS_GOLD);
                 let d14 = KERNEL.getD(r14);
-                let w14 = 80; // 权重适中
+                let w14 = 25; 
                 let prevBs = prev.sum >= 14 ? 'Big' : 'Small';
                 if(d14<=4) { 
                     if(prevBs==='Big') w.b+=w14; else w.s+=w14;
@@ -196,42 +208,46 @@
                 }
             }
 
-            // --- 4. [复活] Algo 18 三角堆叠 (V1原版逻辑) ---
-            // 增加基础底蕴，防止波动过大
+            // Algo 18 三角
             let r18 = ((n1+3.1415)*(n2+2.7182)*(n3+1.4142))/C.TRI_DIV;
-            (Math.floor(r18)%10%2!==0) ? w.o+=60 : w.e+=60;
+            (Math.floor(r18)%10%2!==0) ? w.o+=20 : w.e+=20;
 
-            // --- 5. [复活] Algo 2 黄金反转 (V1原版逻辑) ---
+            // Algo 2 反转
             let r2 = (n1+C.REV_GOLD)*C.REV_GOLD;
-            (Math.floor(r2)%2===0) ? w.o+=50 : w.e+=50;
+            (Math.floor(r2)%2===0) ? w.o+=15 : w.e+=15;
 
-            // --- 6. [复活] Algo 10 极值修正 (V1原版逻辑) ---
-            // 如果出现极值，削减当前领先者的权重，防止盲目追热
+            // Algo 10 修正
             let r10 = 280/(n1+C.EXT_DIV);
             let dec10 = r10 - Math.floor(r10);
             if(dec10 < 0.333) {
-                // 削减当前最大项 20%
                 if(w.b > w.s) w.b *= 0.8; else w.s *= 0.8;
             }
 
-            // --- 7. [复活] Algo 3 警报熔断 (V1原版逻辑) ---
-            // 遇到特定数字结构，重置为平均分 (保留微小扰动)
+            // Algo 3 熔断 (重置为基础分)
             let r3 = (n1+n2+n3)/C.WARN_DIV;
             let d3 = KERNEL.getD(r3);
             if(d3===0 || d3===6) {
-                // 触发熔断，重置回基础分
-                w.b=100+seed; w.s=100-seed; w.o=100+seed; w.e=100-seed;
+                w.b=10+seed; w.s=10-seed; w.o=10+seed; w.e=10-seed;
             }
 
+            // --- V5 核心：极差放大器 (专治 2.5 平局) ---
+            const boost = (k1, k2) => {
+                let diff = Math.abs(w[k1] - w[k2]);
+                // 如果差距过小，强制给领先者加权
+                if(diff < 5) {
+                    if(w[k1] > w[k2]) w[k1] += 30; else w[k2] += 30;
+                }
+            };
+            boost('b', 's');
+            boost('o', 'e');
+
             // --- 归一化 (Sum=10) ---
-            // 确保无负数
             let minV = Math.min(w.b, w.s, w.o, w.e);
-            if(minV < 10) {
-                let lift = Math.abs(minV) + 15;
+            if(minV < 5) {
+                let lift = Math.abs(minV) + 10;
                 w.b += lift; w.s += lift; w.o += lift; w.e += lift;
             }
 
-            // 单项归一
             let totalInd = w.b + w.s + w.o + w.e || 1;
             let nW = {
                 b: (w.b / totalInd) * 10,
@@ -240,7 +256,6 @@
                 e: (w.e / totalInd) * 10
             };
 
-            // 组合计算
             let combos = [
                 { name: "大单", s: w.b + w.o },
                 { name: "大双", s: w.b + w.e },
@@ -248,11 +263,9 @@
                 { name: "小双", s: w.s + w.e }
             ];
 
-            // 排序 (微量因子)
-            combos.forEach((c,i) => c.s += i*0.001);
+            combos.forEach((c,i) => c.s += i*0.01);
             combos.sort((a,b) => b.s - a.s);
 
-            // 组合归一
             let totalComb = combos.reduce((a,b)=>a+b.s,0) || 1;
             let nCombos = combos.map(c => ({
                 name: c.name,
