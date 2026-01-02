@@ -30,7 +30,14 @@
         .status-badge { font-family: var(--font-num); font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--success); display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
         .pulse-dot { width: 6px; height: 6px; background: var(--success); box-shadow: 0 0 8px var(--success); border-radius: 50%; animation: pulse 2s infinite; }
         .card { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); }
-        .card-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        
+        /* 修改点1：改为 flex 布局以支持右侧显示期号，其他样式未动 */
+        .card-label { 
+            font-size: 0.65rem; font-weight: 700; color: var(--text-sub); 
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; 
+            display: flex; justify-content: space-between; align-items: center; /* 改动这里 */
+            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; 
+        }
         
         /* 核心战术板 */
         .tac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -93,7 +100,11 @@
     </div>
 
     <div class="card">
-        <span class="card-label">TACTICAL CORE // 核心预测</span>
+        <div class="card-label">
+            <span>TACTICAL CORE // 核心预测</span>
+            <span id="nextQ" style="color:var(--primary); font-family:var(--font-num); font-size:0.85rem">--期</span>
+        </div>
+        
         <div class="tac-grid">
             <div class="tac-box main">
                 <span class="tac-title">PRIORITY (主力)</span>
@@ -325,6 +336,14 @@
             
             const cur = list[0];
             const res = KERNEL.run(cur.n1, cur.n2, cur.n3, cur.sum, list[1], list);
+
+            // 修改点3：这里是 JS 计算期号并显示的逻辑
+            try {
+                const nextQ = parseInt(cur.q) + 1;
+                document.getElementById('nextQ').innerText = nextQ + "期";
+            } catch(e) {
+                document.getElementById('nextQ').innerText = "--期";
+            }
 
             document.getElementById('tMain').innerHTML = `<span style="color:var(--primary)">${res.nCombos[0].name}</span> <span style="font-size:0.6em;opacity:0.5">/</span> <span style="color:rgba(255,255,255,0.7);font-size:0.8em">${res.nCombos[1].name}</span>`;
             document.getElementById('tDef').innerText = res.nCombos[2].name;
